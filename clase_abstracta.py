@@ -33,4 +33,6 @@ class BaseDatos(ABC):
         pass
 
     def agregar_muchos_datos(self,lista):
+        """Esta clase servira para agregar muchos datos a la bd,
+        Principalmente servira para migraciones """
         pass
