@@ -6,6 +6,7 @@ CREATE TABLE persona (
     manzana TEXT,
     estudia INTEGER DEFAULT 0,
     activo INTEGER DEFAULT 1,
+    fecha_nacimiento
     FOREIGN KEY (estado_especial) REFERENCES estados_especiales(id)
 );
 
