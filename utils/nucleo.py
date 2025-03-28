@@ -54,7 +54,6 @@ class Conexion:
             print(f"Error al cerrar la conexión: {e}")
             raise
 
-
 class Formateo:
     def formatear_fecha(self,fecha_string):
         try:

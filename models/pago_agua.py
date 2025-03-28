@@ -1,7 +1,7 @@
 #Logica para tratar los datos de la tabla pagos_agua
 #Este se deja para otro dia xdxdd
 from clase_abstracta import BaseDatos
-from nucleo import Conexion, Formateo
+from utils.nucleo import Conexion, Formateo
 from datetime import datetime
 
 

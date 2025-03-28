@@ -2,8 +2,7 @@
 import sqlite3
 from datetime import datetime
 from clase_abstracta import BaseDatos
-from nucleo import Conexion, Formateo
-
+from utils.nucleo import Conexion, Formateo
 class Persona:
     #LA CLASE PERSONA SE TENDRA QUE MODIFICAR DESPUES PARA QUE ACEPTE CORRECTAMENTE LOS DATOS
     def __init__(self, formateador):
@@ -614,19 +613,5 @@ if __name__ == "__main__":
     tabla_personas = TablaPersona()
     visualizador = MostrarDatos()
     persona = Persona(bd_conexion)
-    
-    
-    visualizador.mostrar_todos_los_datos(bd_conexion)
-    #elimar todos los datos de la bd
-    for i in range(10,40):
-        tabla_personas.obtener_datos(i, persona, bd_conexion)
-        
-        visualizador.mostrar_datos(persona)
-        
-        
-        tabla_personas.eliminar_dato(i, bd_conexion)
-        
-    print("Datos que sobraron ")
-    visualizador.mostrar_todos_los_datos(bd_conexion)
     #Siempre se cierra la conexion 
     bd_conexion.cerrar_conexion()
