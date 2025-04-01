@@ -29,11 +29,9 @@ You need create a virtual ent (env), for work with flask
   ├── /services              # Lógica de negocio
   │   └── persona_service.py 
   │
-  ├── /api                   # Endpoints
-  │   └── personas_api.py    
   │
   ├── /utils                 # Helpers
-  │   ├── database.py        # Conexión a BD
+  │   ├── nucleo.py        # Conexión a BD
   │   └── config_manager.py  # Manejo de configuraciones
   │
   ├── /tests                 # Pruebas unitarias
@@ -45,3 +43,4 @@ You need create a virtual ent (env), for work with flask
   ├── // config.py              # Configuración de la aplicación No se ocupa
   ├── // requirements.txt       # Dependencias No se ocupa
   └── app.py                 # Punto de entrada principal
+

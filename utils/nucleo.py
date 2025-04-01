@@ -6,11 +6,9 @@ class Conexion:
     Clase la cual servira de conexión para que los datos puedan ser enviados a la bd.
     Se encarga de abrir, cerrar y manejar errores en la conexión.
     """
-
     def __init__(self, ruta):
         self.conn = sqlite3.connect(ruta)
         self.cursor = self.conn.cursor()
-
     def guardar_cambios(self):
         """
         Método que guarda los cambios en la base de datos y cierra la conexión.
@@ -19,7 +17,6 @@ class Conexion:
         try:
             # Intentar guardar los cambios
             self.conn.commit()
-            print("Cambios guardados correctamente.")
         except sqlite3.Error as e:
             # Capturar errores durante el commit
             print(f"Error al guardar los cambios: {e}")
@@ -33,7 +30,6 @@ class Conexion:
         try:
             if self.conn is None or self.cursor is None:
                 raise sqlite3.Error("La conexión o el cursor no están inicializados.")
-            print("Conexión enviada correctamente.")
             return self.conn, self.cursor
         except sqlite3.Error as e:
             print(f"Error al enviar conexiones: {e}")
