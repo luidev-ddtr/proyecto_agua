@@ -1,0 +1,44 @@
+---
+import Layout from "../layouts/Layout.astro";
+import DesplegarFormBoton from '../components/crud/DesplegarFormBoton.astro';
+import AgregarPersona from '../components/crud/personas/AgregarPersona.astro'
+//import MostrarPersona from '../components/MostrarPersona.astro'
+//import ModificarPersona from '../components/ModificarPersona.astro'
+//import BuscarPersona from '../components/BuscarPersona.astro'
+
+let componenteActivo = null;
+---
+
+<Layout>
+    <main class="min-h-screen relative">
+        <div 
+        class="absolute inset-0 bg-cover bg-center z-0"
+        style="background-image: url('/puente.webp')">
+        
+          <!-- Contenedor izquierdo (50% ancho) -->
+          <div class="relative z-10 w-1/2 min-h-full p-8">
+            <!-- Contenedor centrado (dentro del 50%) -->
+            <div class="h-full flex flex-col justify-center items-center">
+              <!-- Botones (mitad del ancho del título y centrados) -->
+              <nav class="w-1/2 flex flex-col items-center space-y-6"> <!-- w-1/2 = 50% del contenedor padre (que ya es 50% del viewport) -->
+                <DesplegarFormBoton 
+                texto="Agregar Personas"
+                onclick={() => componenteActivo = 'agregar'}
+                />
+                
+                <!-- <DesplegarFormboton 
+                texto = "Mostrar Personas"
+                onclick={() => (componenteActivo = "mostrar")}
+                />
+                
+                <DesplegarFormboton 
+                texto = "Modificar Personas"
+                onclick={() => (componenteActivo = "modificar")}
+                /> -->
+                
+                </a>
+              </nav>
+            </div>
+          </div>
+        </main>
+</Layout> 

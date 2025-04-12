@@ -1,0 +1,308 @@
+---
+interface EstadoEspecial {
+  id: number;
+  nombre: string;
+}
+
+interface Manzana {
+  id: string;
+  nombre: string;
+}
+
+const estadosEspeciales: EstadoEspecial[] = [
+  { id: 1, nombre: 'Ninguno' },
+  { id: 2, nombre: 'Madre soltera' },
+  { id: 3, nombre: 'Discapacitado' },
+  { id: 4, nombre: 'Enfermo' }
+];
+
+const manzanas: Manzana[] = [
+  { id: 'Centro', nombre: 'Centro' },
+  { id: 'Garambullo', nombre: 'Garambullo' },
+  { id: 'Yondha', nombre: 'Yondha' },
+  { id: 'Cerritos', nombre: 'Cerritos' },
+  { id: 'Tepetate', nombre: 'Tepetate' },
+  { id: 'Buena vista', nombre: 'Buena vista' }
+];
+
+
+// Manejo del envío del formulario
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  
+  // Validación básica en servidor
+  if (!formData.get('nombre') || !formData.get('fecha_nac')) {
+    return Astro.redirect('/error?message=Datos+incompletos');
+  }
+
+  try {
+    const response = await fetch('http://localhost:5000/api/personas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: formData.get('nombre'),
+        apellidos: formData.get('apellidos'),
+        estado_especial: formData.get('estado_especial'),
+        manzana: formData.get('manzana'),
+        estudia: formData.get('estudia'),
+        fecha_nac: formData.get('fecha_nac')
+      })
+    });
+
+    if (response.ok) {
+      return Astro.redirect('/exito');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return Astro.redirect('/error?message=Error+al+enviar');
+  }
+}
+---
+
+<div class="max-w-md mx-auto p-6 bg-[#056acf] rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-6 text-white text-center">Nuevo Registro</h2>
+
+<form id="personaForm" class="space-y-4">
+
+<!-- 1. Nombre (solo un nombre, sin apellidos) -->
+<div>
+  <label for="nombre" class="block text-sm font-medium text-white">Nombre*</label>
+  <input
+    type="text"
+    id="nombre"
+    required
+    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+    pattern="[A-Za-zÁ-úÜüÑñ\s]+"
+    title="Solo un nombre (sin números, apellidos o caracteres especiales)"
+    oninput="this.value = this.value.replace(/[^A-Za-zÁ-úÜüÑñ\s]/g, ''); if(this.value.split(' ').length > 1) this.value = this.value.split(' ')[0];"
+    maxlength="30"
+  >
+</div>
+
+<!-- 2. Apellidos (permitir múltiples palabras) -->
+<div>
+  <label for="apellidos" class="block text-sm font-medium text-white">Apellidos*</label>
+  <input
+    type="text"
+    id="apellidos"
+    required
+    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+    pattern="[A-Za-zÁ-úÜüÑñ\s]+"
+    title="Solo letras y espacios (sin números o caracteres especiales)"
+    oninput="this.value = this.value.replace(/[^A-Za-zÁ-úÜüÑñ\s]/g, '')"
+    maxlength="50"
+  >
+</div>
+
+<!-- 3. Estado Especial - Versión mejorada -->
+  <div>
+    <label for="estado_especial" class="block text-sm font-medium text-white">Estado Especial*</label>
+    <select
+      id="estado_especial"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none"
+    >
+      <option value="" disabled selected class="text-gray-400">Seleccione una opción</option>
+      {estadosEspeciales.map(estado => (
+        <option 
+          value={estado.id} 
+          class="text-gray-800 hover:bg-blue-100"
+        >
+          {estado.nombre}
+        </option>
+      ))}
+    </select>
+  </div>
+
+    <!-- 4. Manzana -->
+<!-- 4. Manzana - Versión mejorada -->
+<div class="relative">
+  <label for="manzana" class="block text-sm font-medium text-white">Manzana*</label>
+  <select
+    id="manzana"
+    required
+    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none pr-10"
+  >
+    <option value="" disabled selected class="text-gray-400">Seleccione una manzana</option>
+    {manzanas.map(manzana => (
+      <option 
+        value={manzana.id} 
+        class="text-gray-800 hover:bg-blue-50"
+      >
+        {manzana.nombre}
+      </option>
+    ))}
+  </select>
+  
+  <!-- Icono de flecha (opcional) -->
+  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mt-6">
+    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+    </svg>
+  </div>
+</div>
+  <!-- 5. Estudia - Grupo de opciones radio mejorado -->
+  <fieldset class="space-y-2">
+    <legend class="block text-sm font-medium text-white">¿Estudia?*</legend>
+    <div class="mt-1 flex items-center space-x-4">
+      <div class="inline-flex items-center">
+        <input
+          type="radio"
+          id="estudia_si"
+          name="estudia"
+          value="1"
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+        >
+        <label for="estudia_si" class="ml-2 text-white">Sí</label>
+      </div>
+      <div class="inline-flex items-center">
+        <input
+          type="radio"
+          id="estudia_no"
+          name="estudia"
+          value="0"
+          checked
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+        >
+        <label for="estudia_no" class="ml-2 text-white">No</label>
+      </div>
+    </div>
+  </fieldset>
+
+<!-- Agregar fecha  -->
+  <div class="relative">
+    <label for="fecha_nac" class="block text-sm font-medium text-white">Fecha de Nacimiento*</label>
+    
+    <!-- Contenedor principal simplificado -->
+    <div class="mt-1">
+      <input
+        type="text"
+        id="fecha_nac"
+        placeholder="DD/MM/AAAA"
+        required
+        class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10"
+        maxlength="10"
+      >
+      <input type="hidden" id="fecha_nac_formatted" name="fecha_nac">
+    </div>
+
+    <!-- Icono posicionado absolutamente sobre el input -->
+    <div class="absolute right-3 top-8 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </div>
+  </div>
+
+  <button
+    type="submit"
+    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-950
+    hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+  >
+    Registrar
+</button>
+
+  </form>
+
+  <div id="message" class="mt-4 hidden"></div>
+</div>
+
+
+<script>
+  // 1. Configuración inicial
+const setupFechaNacimiento = () => {
+  const fechaInput = document.getElementById('fecha_nac') as HTMLInputElement;
+  const fechaHidden = document.getElementById('fecha_nac_formatted') as HTMLInputElement;
+  const form = document.getElementById('personaForm') as HTMLFormElement;
+
+  if (!fechaInput || !fechaHidden || !form) {
+    console.error('Elementos no encontrados');
+    return;
+  }
+
+  // 2. Autoformateo al escribir (mejorado)
+  fechaInput.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    let value = target.value.replace(/\D/g, '');
+    
+    // Autoinsertar barras
+    if (value.length > 2 && value.length <= 4) {
+      value = `${value.slice(0, 2)}/${value.slice(2)}`;
+    } else if (value.length > 4) {
+      value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4, 8)}`;
+    }
+    
+    target.value = value.slice(0, 10);
+    target.classList.remove('border-red-500');
+  });
+
+  // 3. Validación mejorada
+  const validarFecha = (dateStr: string): { valida: boolean; fechaISO?: string; error?: string } => {
+    const partes = dateStr.split('/');
+    if (partes.length !== 3 || partes.some(p => !p)) {
+      return { valida: false, error: 'Formato debe ser DD/MM/AAAA' };
+    }
+
+    const [dia, mes, anio] = partes.map(Number);
+    const fecha = new Date(anio, mes - 1, dia);
+    
+    // Validación estricta de fecha
+    const fechaValida = (
+      fecha.getFullYear() === anio &&
+      fecha.getMonth() === mes - 1 &&
+      fecha.getDate() === dia &&
+      fecha <= new Date() // No permite fechas futuras
+    );
+
+    if (!fechaValida) {
+      return { valida: false, error: 'Fecha no válida' };
+    }
+
+    return {
+      valida: true,
+      fechaISO: `${anio}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`
+    };
+  };
+
+  // 4. Manejador de envío (robusto)
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const validacion = validarFecha(fechaInput.value);
+    if (!validacion.valida) {
+      fechaInput.classList.add('border-red-500');
+      alert(validacion.error || 'Fecha inválida');
+      fechaInput.focus();
+      return;
+    }
+
+    // Asignar valor formateado al campo oculto
+    fechaHidden.value = validacion.fechaISO!;
+    console.log('Fecha a enviar:', fechaHidden.value);
+
+    // Crear FormData manualmente para asegurar los datos
+    const formData = new FormData();
+    formData.append('nombre', (document.getElementById('nombre') as HTMLInputElement).value);
+    formData.append('apellidos', (document.getElementById('apellidos') as HTMLInputElement).value);
+    formData.append('fecha_nac', fechaHidden.value);
+    // Añadir aquí el resto de campos...
+
+    try {
+      const response = await fetch(form.action || 'http://localhost:5000/api/personas', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error(await response.text());
+      alert('Registro exitoso!');
+      form.reset();
+    } catch (error) {
+      console.error('Error al enviar:', error);
+      alert('Error en el envío: ' + (error instanceof Error ? error.message : ''));
+    }
+  });
+};
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', setupFechaNacimiento);
+</script>
