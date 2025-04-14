@@ -25,3 +25,8 @@ pnpm-debug.log*
 
 #local settings
 .vscode/
+
+#settings importants
+astro.config.mjs
+package.json
+pnpm-lock.yaml
