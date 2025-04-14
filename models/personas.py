@@ -25,7 +25,7 @@ class Persona:
         self.apellidos = apellidos
         self.estado_especial = int(estado_especial)
         self.manzana = manzana
-        self.estudia = estudia
+        self.estudia = int(estudia)
         self.fecha_nac = fecha_nac
         edad = self.calculate_age()
         self.activo = self.is_active(edad)
@@ -56,34 +56,6 @@ class Persona:
         
         # Ensamblar el ID final
         return f"{manzana}-{iniciales}-{año_nac}-{random_part}"
-
-    def solicitar_estudia(self):
-        """
-        Solicita si la persona estudia y convierte la respuesta a booleano.
-        :return: True si estudia, False si no.
-        """
-        while True:
-            respuesta = input("¿Estudias? (Si/No): ").strip().lower()
-            if respuesta in ["si", "sí"]:
-                return True
-            elif respuesta in ["no"]:
-                return False
-            else:
-                print("Respuesta inválida. Por favor, escribe 'Si' o 'No'.")
-
-    def solicitar_fecha_nacimiento(self):
-        """
-        Solicita la fecha de nacimiento de la persona.
-        :return: La fecha de nacimiento en formato 'YYYY-MM-DD'.
-        """
-        while True:
-            fecha_nac = input("Escribe tu fecha de nacimiento en el formato AAAA-MM-DD: ")
-            try:
-                # Validar el formato de la fecha
-                datetime.strptime(fecha_nac, '%Y-%m-%d')
-                return fecha_nac
-            except ValueError:
-                print("Formato de fecha incorrecto. Intenta de nuevo.")
 
     def calculate_age(self):
         """

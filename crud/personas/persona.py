@@ -414,6 +414,22 @@ class MostrarDatos:
         print("Registro de la bd")
         for dato in tabla:
             print(dato)
+
+def menu(lista_datos):
+    print("Inicializando componentes...")
+    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    tabla_personas = TablaPersona()
+    visualizador = MostrarDatos()
+    #persona = Persona("juan", "Torres Morales", 2, "Centro", 0, "2002-02-19")
+    
+    persona = Persona(lista_datos["nombre"],lista_datos["apellidos"]
+                    ,lista_datos['estado_especial'],lista_datos['manzana'],
+                    lista_datos['estudia'],lista_datos['fecha_nac'])
+    
+    tabla_personas.agregar_dato(persona,conexion_bd)
+    
+    conexion_bd.cerrar_conexion()
+    return True
 if __name__ == "__main__":
     """Este es el menu de prueba donde se prueba el funcionamiento del crud de la clase
     Se crean las instancia de de la clase,

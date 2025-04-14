@@ -15,8 +15,9 @@ You need create a virtual ent (env), for work with flask
   ├── /base_datos            # (Existente)
   │   └── bd_mandho.db       # Archivo SQLite (NO subir si tiene datos sensibles)
   │
-  ├── /crud                  # Lógica CRUD separada
-  │   └── /personas          
+  ├── /crud 
+  |   |___/personas/ persona.py               # Lógica CRUD separada
+  │   └── /pago_agua          
   │       ├── create.py
   │       ├── read.py
   │       ├── update.py
@@ -37,7 +38,7 @@ You need create a virtual ent (env), for work with flask
   ├── /tests                 # Pruebas unitarias
   │   └── test_personas.py
   │
-  ├── // .env                   # Variables de entorno LOCALES (NO subir a Git) No se ocupa
+  ├── Frontend                #Todo el front hecho con astro y alpine para js
   ├── // .env.example           # Plantilla para variables (SÍ se sube) No sr ocupa
   ├── .gitignore             # Archivos a ignorar por Git
   ├── // config.py              # Configuración de la aplicación No se ocupa

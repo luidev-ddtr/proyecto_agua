@@ -1,308 +1,460 @@
----
-interface EstadoEspecial {
-  id: number;
-  nombre: string;
-}
-
-interface Manzana {
-  id: string;
-  nombre: string;
-}
-
-const estadosEspeciales: EstadoEspecial[] = [
-  { id: 1, nombre: 'Ninguno' },
-  { id: 2, nombre: 'Madre soltera' },
-  { id: 3, nombre: 'Discapacitado' },
-  { id: 4, nombre: 'Enfermo' }
-];
-
-const manzanas: Manzana[] = [
-  { id: 'Centro', nombre: 'Centro' },
-  { id: 'Garambullo', nombre: 'Garambullo' },
-  { id: 'Yondha', nombre: 'Yondha' },
-  { id: 'Cerritos', nombre: 'Cerritos' },
-  { id: 'Tepetate', nombre: 'Tepetate' },
-  { id: 'Buena vista', nombre: 'Buena vista' }
-];
-
-
-// Manejo del envío del formulario
-if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData();
-  
-  // Validación básica en servidor
-  if (!formData.get('nombre') || !formData.get('fecha_nac')) {
-    return Astro.redirect('/error?message=Datos+incompletos');
-  }
-
-  try {
-    const response = await fetch('http://localhost:5000/api/personas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nombre: formData.get('nombre'),
-        apellidos: formData.get('apellidos'),
-        estado_especial: formData.get('estado_especial'),
-        manzana: formData.get('manzana'),
-        estudia: formData.get('estudia'),
-        fecha_nac: formData.get('fecha_nac')
-      })
-    });
-
-    if (response.ok) {
-      return Astro.redirect('/exito');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    return Astro.redirect('/error?message=Error+al+enviar');
-  }
-}
----
-
-<div class="max-w-md mx-auto p-6 bg-[#056acf] rounded-lg shadow-md">
+<div class="max-w-md mx-auto p-6 bg-[#035cb6] rounded-lg shadow-md">
   <h2 class="text-2xl font-bold mb-6 text-white text-center">Nuevo Registro</h2>
 
-<form id="personaForm" class="space-y-4">
+  <form
+    id="personaForm"
+    class="space-y-4"
+    x-data="{
+      // Variables del formulario
+      form: {
+        nombre: '',
+        apellidos: '',
+        estado_especial: '',
+        manzana: '',
+        estudia: '0',
+        fecha_nac: ''
+      },
+      errors: {
+        nombre: '',
+        apellidos: '',
+        estadoEspecial: '',
+        manzana: '',
+        fechaNac: ''
+      },
+      isSubmitting: false,
 
-<!-- 1. Nombre (solo un nombre, sin apellidos) -->
-<div>
-  <label for="nombre" class="block text-sm font-medium text-white">Nombre*</label>
-  <input
-    type="text"
-    id="nombre"
-    required
-    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-    pattern="[A-Za-zÁ-úÜüÑñ\s]+"
-    title="Solo un nombre (sin números, apellidos o caracteres especiales)"
-    oninput="this.value = this.value.replace(/[^A-Za-zÁ-úÜüÑñ\s]/g, ''); if(this.value.split(' ').length > 1) this.value = this.value.split(' ')[0];"
-    maxlength="30"
+      // Métodos
+      formatearNombre() {
+        this.form.nombre = this.form.nombre.replace(/[^A-Za-zÁ-úÜüÑñ]/g, '');
+        if (this.form.nombre.length > 0) {
+          this.form.nombre = this.form.nombre.charAt(0).toUpperCase() + this.form.nombre.slice(1).toLowerCase();
+        }
+        this.validarNombre();
+      },
+      
+      validarNombre() {
+        if (this.form.nombre.length < 3 || this.form.nombre.length > 30) {
+          this.errors.nombre = 'Mínimo 3 letras, máximo 30 (ej: Ana, María)';
+          return false;
+        }
+        this.errors.nombre = '';
+        return true;
+      },
+      
+      formatearApellidos() {
+        let valor = this.form.apellidos.replace(/\s+/g, ' ').trimStart();
+        valor = valor.replace(/[^A-Za-zÁ-úá-úÜüÑñ ]/g, '');
+        valor = valor.split(' ')
+          .filter(p => p !== '')
+          .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
+          .join(' ');
+        
+        const palabras = valor.split(' ').filter(p => p !== '');
+        if (palabras.length > 2) {
+          valor = palabras.slice(0, 2).join(' ');
+        }
+        
+        this.form.apellidos = valor;
+        this.validarApellidos();
+      },
+      
+      validarApellidos() {
+        const palabras = this.form.apellidos.split(' ').filter(p => p !== '');
+        if (palabras.length < 1 || palabras.length > 2) {
+          this.errors.apellidos = 'Debe ingresar 1 o 2 apellidos';
+          return false;
+        }
+        for (const palabra of palabras) {
+          if (palabra.length < 2 || palabra.length > 30) {
+            this.errors.apellidos = 'Cada apellido debe tener entre 2 y 30 letras';
+            return false;
+          }
+        }
+        this.errors.apellidos = '';
+        return true;
+      },
+      
+      validarEstadoEspecial() {
+        if (!this.form.estado_especial) {
+          this.errors.estadoEspecial = 'Debe seleccionar una opción';
+          return false;
+        }
+        this.errors.estadoEspecial = '';
+        return true;
+      },
+      
+      validarManzana() {
+        if (!this.form.manzana) {
+          this.errors.manzana = 'Debe seleccionar una manzana';
+          return false;
+        }
+        this.errors.manzana = '';
+        return true;
+      },
+      
+      formatearFechaInput() {
+        this.form.fecha_nac = this.form.fecha_nac.replace(/[^0-9/]/g, '');
+        
+        if (this.form.fecha_nac.length > 2 && this.form.fecha_nac.length <= 4 && !this.form.fecha_nac.includes('/')) {
+          this.form.fecha_nac = `${this.form.fecha_nac.slice(0, 2)}/${this.form.fecha_nac.slice(2)}`;
+        } else if (this.form.fecha_nac.length > 5 && this.form.fecha_nac.split('/').length < 3) {
+          this.form.fecha_nac = `${this.form.fecha_nac.slice(0, 5)}/${this.form.fecha_nac.slice(5, 9)}`;
+        }
+        
+        this.form.fecha_nac = this.form.fecha_nac.slice(0, 10);
+        this.validarFecha();
+      },
+      
+      validarFecha() {
+        if (!this.form.fecha_nac) {
+          this.errors.fechaNac = '';
+          return false;
+        }
+        
+        const partes = this.form.fecha_nac.split('/');
+        if (partes.length !== 3 || partes.some(p => !p)) {
+          this.errors.fechaNac = 'Formato debe ser DD/MM/AAAA';
+          return false;
+        }
+
+        const [diaStr, mesStr, anioStr] = partes;
+        const dia = parseInt(diaStr, 10);
+        const mes = parseInt(mesStr, 10);
+        const anio = parseInt(anioStr, 10);
+
+        if (isNaN(dia) || isNaN(mes) || isNaN(anio)) {
+          this.errors.fechaNac = 'Fecha no válida';
+          return false;
+        }
+
+        if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || anio < 1900 || anio > new Date().getFullYear()) {
+          this.errors.fechaNac = 'Fecha no válida';
+          return false;
+        }
+
+        const fecha = new Date(anio, mes - 1, dia);
+        if (fecha.getFullYear() !== anio || fecha.getMonth() !== mes - 1 || fecha.getDate() !== dia) {
+          this.errors.fechaNac = 'Fecha no válida';
+          return false;
+        }
+
+        this.errors.fechaNac = '';
+        return true;
+      },
+      
+      convertirFechaISO() {
+        if (!this.form.fecha_nac) return '';
+        
+        const partes = this.form.fecha_nac.split('/');
+        if (partes.length !== 3) return this.form.fecha_nac;
+        
+        const [diaStr, mesStr, anioStr] = partes;
+        const dia = diaStr.padStart(2, '0');
+        const mes = mesStr.padStart(2, '0');
+        const anio = anioStr;
+        
+        return `${anio}-${mes}-${dia}`;
+      },
+      
+      scrollToFirstError() {
+        this.$nextTick(() => {
+          const errorFields = ['nombre', 'apellidos', 'estadoEspecial', 'manzana', 'fechaNac'];
+          for (const field of errorFields) {
+            if (this.errors[field]) {
+              const errorElement = document.querySelector(`[data-error='${field}']`);
+              if (errorElement) {
+                errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const inputElement = errorElement.previousElementSibling?.querySelector('input, select');
+                if (inputElement) inputElement.focus();
+                break;
+              }
+            }
+          }
+        });
+      },
+      
+      showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+          type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } z-50`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      },
+      
+      resetForm() {
+        this.form = {
+          nombre: '',
+          apellidos: '',
+          estado_especial: '',
+          manzana: '',
+          estudia: '0',
+          fecha_nac: ''
+        };
+        this.errors = {
+          nombre: '',
+          apellidos: '',
+          estadoEspecial: '',
+          manzana: '',
+          fechaNac: ''
+        };
+      },
+      
+      async submitForm() {
+        this.isSubmitting = true;
+        
+        const validations = [
+          this.validarNombre(),
+          this.validarApellidos(),
+          this.validarEstadoEspecial(),
+          this.validarManzana(),
+          this.validarFecha()
+        ];
+        
+        if (validations.some(valid => !valid)) {
+          this.isSubmitting = false;
+          this.scrollToFirstError();
+          return;
+        }
+        
+        const formData = {
+          nombre: this.form.nombre,
+          apellidos: this.form.apellidos,
+          estado_especial: this.form.estado_especial,
+          manzana: this.form.manzana,
+          estudia: this.form.estudia,
+          fecha_nac: this.convertirFechaISO()
+        };
+        
+        console.log('Datos a enviar:', formData);
+        
+        try {
+          const response = await fetch('http://localhost:5000/app/create_us', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          });
+          
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          
+          const data = await response.json();
+          console.log('Respuesta:', data);
+          this.showNotification('Registro exitoso', 'success');
+          this.resetForm();
+        } catch (error) {
+          console.error('Error:', error);
+          this.showNotification('Error al enviar el formulario', 'error');
+        } finally {
+          this.isSubmitting = false;
+        }
+      }
+    }"
+    @submit.prevent="submitForm"
   >
-</div>
-
-<!-- 2. Apellidos (permitir múltiples palabras) -->
-<div>
-  <label for="apellidos" class="block text-sm font-medium text-white">Apellidos*</label>
-  <input
-    type="text"
-    id="apellidos"
-    required
-    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-    pattern="[A-Za-zÁ-úÜüÑñ\s]+"
-    title="Solo letras y espacios (sin números o caracteres especiales)"
-    oninput="this.value = this.value.replace(/[^A-Za-zÁ-úÜüÑñ\s]/g, '')"
-    maxlength="50"
-  >
-</div>
-
-<!-- 3. Estado Especial - Versión mejorada -->
-  <div>
-    <label for="estado_especial" class="block text-sm font-medium text-white">Estado Especial*</label>
-    <select
-      id="estado_especial"
-      required
-      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none"
-    >
-      <option value="" disabled selected class="text-gray-400">Seleccione una opción</option>
-      {estadosEspeciales.map(estado => (
-        <option 
-          value={estado.id} 
-          class="text-gray-800 hover:bg-blue-100"
-        >
-          {estado.nombre}
-        </option>
-      ))}
-    </select>
-  </div>
-
-    <!-- 4. Manzana -->
-<!-- 4. Manzana - Versión mejorada -->
-<div class="relative">
-  <label for="manzana" class="block text-sm font-medium text-white">Manzana*</label>
-  <select
-    id="manzana"
-    required
-    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none pr-10"
-  >
-    <option value="" disabled selected class="text-gray-400">Seleccione una manzana</option>
-    {manzanas.map(manzana => (
-      <option 
-        value={manzana.id} 
-        class="text-gray-800 hover:bg-blue-50"
-      >
-        {manzana.nombre}
-      </option>
-    ))}
-  </select>
-  
-  <!-- Icono de flecha (opcional) -->
-  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mt-6">
-    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-    </svg>
-  </div>
-</div>
-  <!-- 5. Estudia - Grupo de opciones radio mejorado -->
-  <fieldset class="space-y-2">
-    <legend class="block text-sm font-medium text-white">¿Estudia?*</legend>
-    <div class="mt-1 flex items-center space-x-4">
-      <div class="inline-flex items-center">
-        <input
-          type="radio"
-          id="estudia_si"
-          name="estudia"
-          value="1"
-          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-        >
-        <label for="estudia_si" class="ml-2 text-white">Sí</label>
-      </div>
-      <div class="inline-flex items-center">
-        <input
-          type="radio"
-          id="estudia_no"
-          name="estudia"
-          value="0"
-          checked
-          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-        >
-        <label for="estudia_no" class="ml-2 text-white">No</label>
-      </div>
-    </div>
-  </fieldset>
-
-<!-- Agregar fecha  -->
-  <div class="relative">
-    <label for="fecha_nac" class="block text-sm font-medium text-white">Fecha de Nacimiento*</label>
-    
-    <!-- Contenedor principal simplificado -->
-    <div class="mt-1">
+    <!-- Campo Nombre -->
+    <div>
+      <label for="nombre" class="block text-sm font-medium text-white">Nombre*</label>
       <input
         type="text"
-        id="fecha_nac"
-        placeholder="DD/MM/AAAA"
+        id="nombre"
+        name="nombre"
         required
-        class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10"
-        maxlength="10"
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+        placeholder="Ej: Ana, María (solo letras, 3-30 caracteres)"
+        minlength="3"
+        maxlength="30"
+        x-model="form.nombre"
+        @input="formatearNombre"
+        @blur="validarNombre"
       >
-      <input type="hidden" id="fecha_nac_formatted" name="fecha_nac">
+      <div 
+        x-show="errors.nombre" 
+        x-transition
+        data-error="nombre"
+        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span x-text="errors.nombre"></span>
+      </div>
     </div>
 
-    <!-- Icono posicionado absolutamente sobre el input -->
-    <div class="absolute right-3 top-8 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
+    <!-- Campo Apellidos -->
+    <div>
+      <label for="apellidos" class="block text-sm font-medium text-white">Apellidos*</label>
+      <input
+        type="text"
+        id="apellidos"
+        name="apellidos"
+        required
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+        placeholder="Ej: Pérez García (1 o 2 apellidos)"
+        x-model="form.apellidos"
+        @input="formatearApellidos"
+        @blur="validarApellidos"
+      >
+      <div 
+        x-show="errors.apellidos" 
+        x-transition
+        data-error="apellidos"
+        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span x-text="errors.apellidos"></span>
+      </div>
     </div>
-  </div>
 
-  <button
-    type="submit"
-    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-950
-    hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
-  >
-    Registrar
-</button>
+    <!-- Campo Estado Especial -->
+    <div>
+      <label for="estado_especial" class="block text-sm font-medium text-white">Estado Especial*</label>
+      <select
+        id="estado_especial"
+        name="estado_especial"
+        required
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none"
+        x-model="form.estado_especial"
+        @change="validarEstadoEspecial"
+      >
+        <option value="" disabled selected class="text-gray-400">Seleccione una opción</option>
+        <option value="1" class="text-gray-800">Ninguno</option>
+        <option value="2" class="text-gray-800">Madre soltera</option>
+        <option value="3" class="text-gray-800">Discapacitado</option>
+        <option value="4" class="text-gray-800">Enfermo</option>
+      </select>
+      <div 
+        x-show="errors.estadoEspecial" 
+        x-transition
+        data-error="estadoEspecial"
+        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span x-text="errors.estadoEspecial"></span>
+      </div>
+    </div>
 
+    <!-- Campo Manzana -->
+    <div class="relative">
+      <label for="manzana" class="block text-sm font-medium text-white">Manzana*</label>
+      <select
+        id="manzana"
+        name="manzana"
+        required
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none pr-10"
+        x-model="form.manzana"
+        @change="validarManzana"
+      >
+        <option value="" disabled selected class="text-gray-400">Seleccione una manzana</option>
+        <option value="Centro" class="text-gray-800">Centro</option>
+        <option value="Garambullo" class="text-gray-800">Garambullo</option>
+        <option value="Yondha" class="text-gray-800">Yondha</option>
+        <option value="Cerritos" class="text-gray-800">Cerritos</option>
+        <option value="Tepetate" class="text-gray-800">Tepetate</option>
+        <option value="Buena vista" class="text-gray-800">Buena vista</option>
+      </select>
+      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mt-6">
+        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div 
+        x-show="errors.manzana" 
+        x-transition
+        data-error="manzana"
+        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span x-text="errors.manzana"></span>
+      </div>
+    </div>
+
+    <!-- Campo Estudia -->
+    <fieldset class="space-y-2">
+      <legend class="block text-sm font-medium text-white">¿Estudia?*</legend>
+      <div class="mt-1 flex items-center space-x-4">
+        <div class="inline-flex items-center">
+          <input
+            type="radio"
+            id="estudia_si"
+            name="estudia"
+            value="1"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            x-model="form.estudia"
+          >
+          <label for="estudia_si" class="ml-2 text-white">Sí</label>
+        </div>
+        <div class="inline-flex items-center">
+          <input
+            type="radio"
+            id="estudia_no"
+            name="estudia"
+            value="0"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            x-model="form.estudia"
+            checked
+          >
+          <label for="estudia_no" class="ml-2 text-white">No</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Campo Fecha de Nacimiento -->
+    <div class="relative">
+      <label for="fecha_nac" class="block text-sm font-medium text-white">Fecha de Nacimiento*</label>
+      <div class="mt-1">
+        <input
+          type="text"
+          id="fecha_nac"
+          name="fecha_nac"
+          placeholder="DD/MM/AAAA"
+          required
+          class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10"
+          maxlength="10"
+          x-model="form.fecha_nac"
+          @input="formatearFechaInput"
+          @blur="validarFecha"
+        >
+      </div>
+      <div class="absolute right-3 top-8 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <div 
+        x-show="errors.fechaNac" 
+        x-transition
+        data-error="fechaNac"
+        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span x-text="errors.fechaNac"></span>
+      </div>
+    </div>
+
+    <!-- Botón de enviar -->
+    <button
+      type="submit"
+      class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-950 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+      :disabled="isSubmitting"
+      :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+    >
+      <span x-show="!isSubmitting">Registrar</span>
+      <span x-show="isSubmitting">Enviando...</span>
+    </button>
   </form>
-
-  <div id="message" class="mt-4 hidden"></div>
 </div>
-
-
-<script>
-  // 1. Configuración inicial
-const setupFechaNacimiento = () => {
-  const fechaInput = document.getElementById('fecha_nac') as HTMLInputElement;
-  const fechaHidden = document.getElementById('fecha_nac_formatted') as HTMLInputElement;
-  const form = document.getElementById('personaForm') as HTMLFormElement;
-
-  if (!fechaInput || !fechaHidden || !form) {
-    console.error('Elementos no encontrados');
-    return;
-  }
-
-  // 2. Autoformateo al escribir (mejorado)
-  fechaInput.addEventListener('input', (e) => {
-    const target = e.target as HTMLInputElement;
-    let value = target.value.replace(/\D/g, '');
-    
-    // Autoinsertar barras
-    if (value.length > 2 && value.length <= 4) {
-      value = `${value.slice(0, 2)}/${value.slice(2)}`;
-    } else if (value.length > 4) {
-      value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4, 8)}`;
-    }
-    
-    target.value = value.slice(0, 10);
-    target.classList.remove('border-red-500');
-  });
-
-  // 3. Validación mejorada
-  const validarFecha = (dateStr: string): { valida: boolean; fechaISO?: string; error?: string } => {
-    const partes = dateStr.split('/');
-    if (partes.length !== 3 || partes.some(p => !p)) {
-      return { valida: false, error: 'Formato debe ser DD/MM/AAAA' };
-    }
-
-    const [dia, mes, anio] = partes.map(Number);
-    const fecha = new Date(anio, mes - 1, dia);
-    
-    // Validación estricta de fecha
-    const fechaValida = (
-      fecha.getFullYear() === anio &&
-      fecha.getMonth() === mes - 1 &&
-      fecha.getDate() === dia &&
-      fecha <= new Date() // No permite fechas futuras
-    );
-
-    if (!fechaValida) {
-      return { valida: false, error: 'Fecha no válida' };
-    }
-
-    return {
-      valida: true,
-      fechaISO: `${anio}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`
-    };
-  };
-
-  // 4. Manejador de envío (robusto)
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const validacion = validarFecha(fechaInput.value);
-    if (!validacion.valida) {
-      fechaInput.classList.add('border-red-500');
-      alert(validacion.error || 'Fecha inválida');
-      fechaInput.focus();
-      return;
-    }
-
-    // Asignar valor formateado al campo oculto
-    fechaHidden.value = validacion.fechaISO!;
-    console.log('Fecha a enviar:', fechaHidden.value);
-
-    // Crear FormData manualmente para asegurar los datos
-    const formData = new FormData();
-    formData.append('nombre', (document.getElementById('nombre') as HTMLInputElement).value);
-    formData.append('apellidos', (document.getElementById('apellidos') as HTMLInputElement).value);
-    formData.append('fecha_nac', fechaHidden.value);
-    // Añadir aquí el resto de campos...
-
-    try {
-      const response = await fetch(form.action || 'http://localhost:5000/api/personas', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) throw new Error(await response.text());
-      alert('Registro exitoso!');
-      form.reset();
-    } catch (error) {
-      console.error('Error al enviar:', error);
-      alert('Error en el envío: ' + (error instanceof Error ? error.message : ''));
-    }
-  });
-};
-
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', setupFechaNacimiento);
-</script>

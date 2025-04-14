@@ -1,12 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import DesplegarFormBoton from '../components/crud/DesplegarFormBoton.astro';
-import AgregarPersona from '../components/crud/personas/AgregarPersona.astro'
-//import MostrarPersona from '../components/MostrarPersona.astro'
-//import ModificarPersona from '../components/ModificarPersona.astro'
-//import BuscarPersona from '../components/BuscarPersona.astro'
-
-let componenteActivo = null;
+import FlechaBoton from '../components/FlechaBoton.astro';
 ---
 
 <Layout>
@@ -20,23 +14,16 @@ let componenteActivo = null;
             <!-- Contenedor centrado (dentro del 50%) -->
             <div class="h-full flex flex-col justify-center items-center">
               <!-- Botones (mitad del ancho del título y centrados) -->
-              <nav class="w-1/2 flex flex-col items-center space-y-6"> <!-- w-1/2 = 50% del contenedor padre (que ya es 50% del viewport) -->
-                <DesplegarFormBoton 
-                texto="Agregar Personas"
-                onclick={() => componenteActivo = 'agregar'}
-                />
+              <nav class="w-1/2 flex flex-col items-center space-y-6">
+
+                <FlechaBoton texto = "Agregar Registro" href = "/crud/personas/agregar"/>
                 
-                <!-- <DesplegarFormboton 
-                texto = "Mostrar Personas"
-                onclick={() => (componenteActivo = "mostrar")}
-                />
+                <FlechaBoton texto = "Mostrar Registro" href = "/crud/personas/listar"/>
                 
-                <DesplegarFormboton 
-                texto = "Modificar Personas"
-                onclick={() => (componenteActivo = "modificar")}
-                /> -->
+                <FlechaBoton texto = "Editar Registro" href = "/crud/personas/editar/[id]" />
                 
-                </a>
+                <FlechaBoton texto = "Agregar Muchos Registros"href = "/crud/personas/agregar_muchos" />
+                <div x-data="{ message: '¡Alpine funciona!' }" x-text="message"></div>
               </nav>
             </div>
           </div>
