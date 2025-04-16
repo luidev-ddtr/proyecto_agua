@@ -1,0 +1,32 @@
+---
+import MostrarPersonas from "../../../components/crud/personas/MostrarPersonas.astro";
+import Layout from "../../../layouts/Layout.astro";
+---
+
+<Layout>
+  <main class="relative min-h-screen">
+    <!-- Fondo de imagen (ocupa toda la pantalla y queda fijo) -->
+    <div 
+      class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+      style="background-image: url('/fondoForm.webp')"
+    ></div>
+    
+    <!-- Contenido principal (con márgenes para evitar el header y footer) -->
+    <div class="flex w-full pb-8 min-h-full">  <!-- Ajusta `pt-16` según la altura de tu header -->
+      <!-- Espacio izquierdo (1/6) -->
+      <div class="w-1/6"></div>
+      
+      <!-- Componente central (4/6) con scroll si es necesario -->
+      <div class="w-4/6 max-h-[calc(100vhrem)] overflow-y-auto">  <!-- Ajusta `max-h` según necesites -->
+        <div class="w-full p-6 bg-blue-800 rounded-lg shadow-md">
+          <MostrarPersonas />
+        </div>
+      </div>
+      
+      <!-- Espacio derecho (1/6) -->
+      <div class="w-1/6"></div>
+    </div>
+  </main>
+</Layout>
+  
+  

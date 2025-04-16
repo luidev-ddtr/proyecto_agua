@@ -1,0 +1,72 @@
+<div class="p-4">
+    <div
+      x-data="{
+        personas: [],
+        isLoading: true,
+        error: null,
+        fetchData() {
+        fetch('http://localhost:5000/app/read_us')  // Añade la URL base
+            .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta');
+            return response.json();
+            })
+            .then(data => {
+            this.personas = data.Perfecto;
+            this.isLoading = false;
+            })
+            .catch(err => {
+            this.error = 'Error al cargar datos';
+            console.error('Fetch error:', err);
+            });
+        }
+      }"
+      x-init="fetchData()"
+    >
+      <!-- Loading State -->
+      <template x-if="isLoading">
+        <div class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <p class="mt-2 text-gray-600">Cargando registros...</p>
+        </div>
+      </template>
+  
+      <!-- Error State -->
+      <template x-if="error">
+        <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-4" x-text="error"></div>
+      </template>
+  
+      <!-- Table -->
+      <template x-if="!isLoading && !error">
+        <div class="overflow-x-auto rounded-lg shadow" x-html="`
+          <table class='min-w-full bg-white'>
+            <thead class='bg-blue-800 text-white'>
+              <tr>
+                <th class='py-3 px-4 text-left'>ID</th>
+                <th class='py-3 px-4 text-left'>Nombre Completo</th>
+                <th class='py-3 px-4 text-left'>Estado</th>
+                <th class='py-3 px-4 text-left'>Fecha Nacimiento</th>
+                <th class='py-3 px-4 text-left'>Manzana</th>
+              </tr>
+            </thead>
+            <tbody class='divide-y divide-gray-200'>
+              ${personas.map(persona => `
+                <tr class='hover:bg-gray-50'>
+                  <td class='py-3 px-4'>${persona.id}</td>
+                  <td class='py-3 px-4'>${persona.nombre_completo}</td>
+                  <td class='py-3 px-4'>
+                    <span class='px-2 py-1 text-xs font-semibold rounded-full ${
+                      persona.activo === 'Activo' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }'>
+                      ${persona.activo}
+                    </span>
+                  </td>
+                  <td class='py-3 px-4'>${persona.fecha_nacimiento}</td>
+                  <td class='py-3 px-4'>${persona.manzana}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `"></div>
+      </template>

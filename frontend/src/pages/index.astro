@@ -1,0 +1,32 @@
+---
+import FlechaBoton from '../components/FlechaBoton.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+    <main class="min-h-screen relative">
+      <div 
+      class="absolute inset-0 bg-cover bg-center z-0"
+      style="background-image: url('/puente1.webp')">
+
+        <!-- Contenedor izquierdo (50% ancho) -->
+        <div class="relative z-10 w-1/2 min-h-full p-8">
+          <!-- Contenedor centrado (dentro del 50%) -->
+          <div class="h-full flex flex-col justify-center items-center">
+            
+            <!-- Título (ancho completo del 50%) -->
+            <div class="w-full text-center mb-12">
+              <h1 class="text-5xl font-bold text-white drop-shadow-md">S.G. El Mandhó</h1>
+            </div>
+      
+            <!-- Botones (mitad del ancho del título y centrados) -->
+            <nav class="w-1/2 flex flex-col items-center space-y-6"> <!-- w-1/2 = 50% del contenedor padre (que ya es 50% del viewport) -->
+              <!-- Botón Usuarios -->
+
+              <FlechaBoton texto='usuarios' href='./usuarios' />
+              <FlechaBoton texto='pagos' href='./pagos'/>
+            </nav>
+          </div>
+        </div>
+      </main>
+</Layout>

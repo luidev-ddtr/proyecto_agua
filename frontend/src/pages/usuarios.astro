@@ -1,0 +1,31 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FlechaBoton from '../components/FlechaBoton.astro';
+---
+
+<Layout>
+    <main class="min-h-screen relative">
+      <div
+      class="absolute inset-0 bg-cover bg-center z-0"
+      style="background-image: url('/puente.webp');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('/puente.webp');">
+          <!-- Contenedor izquierdo (50% ancho) -->
+          <div class="relative z-10 w-1/2 min-h-full p-8">
+            <!-- Contenedor centrado (dentro del 50%) -->
+            <div class="h-full flex flex-col justify-center items-center">
+              <!-- Botones (mitad del ancho del título y centrados) -->
+              <nav class="w-1/2 flex flex-col items-center space-y-6">
+
+                <FlechaBoton texto = "Agregar Registro" href = "/crud/personas/agregar"/>
+                
+                <FlechaBoton texto = "Mostrar Registro" href = "/crud/personas/listar"/>
+                
+                <FlechaBoton texto = "Editar Registro" href = "/crud/personas/editar/[id]" />
+                
+                <FlechaBoton texto = "Agregar Muchos Registros"href = "/crud/personas/agregar_muchos" />
+                <div x-data="{ message: '¡Alpine funciona!' }" x-text="message"></div>
+              </nav>
+            </div>
+          </div>
+        </main>
+</Layout> 
