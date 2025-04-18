@@ -1,0 +1,49 @@
+---
+import FlechaBoton from "../../components/FlechaBoton.astro";
+import Layout from "../../layouts/Layout.astro";
+
+
+---
+
+<Layout>
+    <main class="relative min-h-screen">
+        <!-- Fondo -->
+        <div class="absolute inset-0 bg-cover bg-center z-0"
+        style="background-image: url('/puente.webp');">
+        <div class="absolute inset-0 backdrop-brightness-50"></div>
+        </div>
+        <!-- Contenedor principal -->
+        <div class="relative z-10 h-screen flex items-center">
+            <div class="w-full flex flex-wrap"> <!-- Cambiado a flex-wrap -->
+                <!-- Columna 1 -->
+                <div class="w-1/2 flex flex-col items-center p-4"> <!-- Cambiado a flex-col -->
+                    <h1 class="text-4xl font-bold text-white mb-8 text-center">Agregar Persona</h1>
+                    <br><br><br><br>
+                    <div class="w-full flex justify-center">
+                        <div class="w-2/6"> </div>
+                        <FlechaBoton 
+                            texto=" " 
+                            href="/crud/personas/agregar" 
+                            
+                        />
+                        <div class="w-2/6"> </div>
+                    </div>
+                </div>
+                
+                <!-- Columna 2 -->
+                <div class="w-1/2 flex flex-col items-center p-4"> <!-- Cambiado a flex-col -->
+                    <h1 class="text-4xl font-bold text-white mb-8 text-center">Agregar Pago</h1>
+                    <br><br><br><br>
+                    <div class="w-full flex justify-center">
+                        <div class="w-2/6"> </div>
+                        <FlechaBoton 
+                            texto=" " 
+                            href="/crud/pagos/agregar" 
+                        />
+                        <div class="w-2/6"> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>

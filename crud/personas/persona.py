@@ -1,6 +1,5 @@
 #Crud unificado de persona
 import sqlite3
-from datetime import datetime
 from models.clase_abstracta import BaseDatos
 from models.personas import Persona
 from models.estado_especial import TablaEstado
@@ -182,88 +181,13 @@ class TablaPersona(BaseDatos):
         :param conexion_db Instancia de la clase Conexion.
         """
         conexion, cursor = conexion_db.conexion()
-
-        campos = {
-            1: ('nombre', str),
-            2: ('apellidos', str),
-            3: ('estado_especial', int),
-            4: ('manzana', str),
-            5: ('estudia', int),
-            6: ('fecha_nacimiento', 'date')
-        }
-
-        while True:
-            # Manejo seguro de la fecha para mostrar
-            fecha_mostrar = (
-                datetime.strptime(ojeto.fecha_nac, '%Y-%m-%d').strftime('%Y-%m-%d')
-                if ojeto.fecha_nac and isinstance(ojeto.fecha_nac, str)
-                else 'No especificada'
-            )
-
-            print(f"""\nMENU DE MODIFICAR PERSONA
-            Datos actuales:
-            ----------------------
-            1) Nombre: {ojeto.nombre}
-            2) Apellidos: {ojeto.apellidos}
-            3) Estado Especial: {ojeto.estado_especial}
-            4) Manzana: {ojeto.manzana}
-            5) Estudia: {'Sí' if ojeto.estudia == 1 else 'No'}
-            6) Fecha Nacimiento: {fecha_mostrar}
-            7) Activo: {'Activo' if ojeto.activo == 1 else 'Inactivo'}
-            ----------------------
-            Opciones:
-            1-6. Modificar campo correspondiente
-            7. Guardar y salir
-            """)
-
-            opcion = input("Seleccione una opción (1-7): ").strip()
-
-            if opcion == '7':
-                break
-
-            if not opcion.isdigit() or int(opcion) not in campos:
-                print("¡Opción no válida! Debe ser un número entre 1 y 7")
-                continue
-
-            opcion = int(opcion)
-            campo, tipo = campos[opcion]
-
-            if tipo == int:  # Campo estudia (Sí/No)
-                while True:
-                    valor = input("¿Estudia actualmente? (Sí/No): ").strip().lower()
-                    if valor in ('sí', 'si', 's', '1'):
-                        nuevo_valor = 1
-                        break
-                    elif valor in ('no', 'n', '0'):
-                        nuevo_valor = 0
-                        break
-                    else:
-                        print("Por favor ingrese sólo 'Sí' o 'No'")
-
-            elif tipo == 'date':  # Fecha de nacimiento
-                while True:
-                    valor = input("Ingrese fecha (YYYY-MM-DD): ").strip()
-                    try:
-                        # Validamos pero guardamos como string
-                        datetime.strptime(valor, '%Y-%m-%d')
-                        nuevo_valor = valor  # Guardamos como string
-                        break
-                    except ValueError:
-                        print("Formato incorrecto. Use AAAA-MM-DD (ej. 2000-05-15)")
-
-            else:  # Campos de texto
-                valor = input(f"Ingrese nuevo valor para {campo}: ").strip()
-                if not valor:
-                    print("El campo no puede estar vacío")
-                    continue
-                nuevo_valor = str(valor) if tipo == str else valor
-
-            # Actualizar objeto y base de datos
-            setattr(ojeto, campo, nuevo_valor)
-            cursor.execute(f"UPDATE persona SET {campo} = ? WHERE id = ?",
-                        (nuevo_valor, ojeto.id_persona))
-            conexion_db.guardar_cambios()
-            print("✓ Cambio guardado correctamente")
+        
+        
+        # Construir la consulta SQL completa
+        consulta_sql = f"UPDATE persona SET  WHERE id = ?"
+        
+        conexion_db.guardar_cambios()
+        print("✓ Cambio guardado correctamente")
 
     def eliminar_dato(self, id_persona, conexion_db):
         """
@@ -282,6 +206,42 @@ class TablaPersona(BaseDatos):
         registros_eliminados = cursor.rowcount
         conexion_db.guardar_cambios()
         return registros_eliminados
+    
+    def buscar_nombre(self, busqueda, conexion_bd):
+        """
+        Método que ejecuta la consulta SQL real
+        
+        Args:
+            busqueda (str): Término a buscar
+            conexion_bd (Conexion): Objeto de conexión
+            
+        Returns:
+            list: Resultados formateados
+        """
+        conn, cursor = conexion_bd.conectar()
+        
+        # Dividir términos de búsqueda
+        terminos = [t.strip() for t in busqueda.split() if t.strip()]
+        
+        if not terminos:
+            return []
+        
+        # Construir consulta segura
+        query = """
+            SELECT id, nombre 
+            FROM personas 
+            WHERE {}
+            LIMIT 20
+        """.format(" OR ".join(["nombre LIKE ?"] * len(terminos)))
+        
+        # Parámetros con comodines para cada término
+        params = [f"%{t}%" for t in terminos]
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        
+        # Formatear resultados
+        return [{"id": row[0], "nombre": row[1]} for row in rows]
 
 class MostrarDatos:
     """Estra clase es especifica para la tabla y objeto persona por lo que se tiene que hacer mas general
@@ -417,6 +377,7 @@ class MostrarDatos:
         for dato in tabla:
             print(dato)
 
+
 def menu_mostrar():
     conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
@@ -428,17 +389,41 @@ def menu_mostrar():
 
     return datos_bd
 
+def obtener_registro(indice):
+    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    tabla_personas = TablaPersona()
+    
+    persona = tabla_personas.obtener_datos(indice,Persona,conexion_bd)
+    
+    conexion_bd.cerrar_conexion()
+    return persona
+
+
 # SE DEJA PENDIENTE PARA DESPUE SYA QUE SI ES MEDIO COMPLICADO
-# def menu_modificar(indice):
-#     conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
-#     tabla_personas = TablaPersona()
-#     visualizador = MostrarDatos()
+def menu_modificar(datos):
+    """
+    Funcion la cual se encarga de modifiar un registro. Crea otro objeto de persona con los datos actualizados
+    sin embargo aqui si ya tiene el id
+    
+    params
+    :datos Son el json que biene desde el frontend el cual tiene un diccionario con los 
+    datos nuevos
+    
+    :retunrs Retorna true si es que no ha havido algun error (llego al final de la funcion sin problemas)
+    
+    
+    """
+    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    tabla_personas = TablaPersona()
+    persona = Persona(datos["nombre"],datos["apellidos"]
+                    ,datos['estado_especial'],datos['manzana'],
+                    datos['estudia'],datos['fecha_nac'], id=['id'])
+    
+    tabla_personas.modificar_dato(persona,conexion_bd)
+    conexion_bd.cerrar_conexion()
+    
+    return True
 
-#     tabla_personas.modificar_dato(indice,conexion_bd)
-
-#     conexion_bd.cerrar_conexion()
-
-#     return datos_bd
 
 def menu_crear(lista_datos):
     print("Inicializando componentes...")

@@ -1,32 +1,148 @@
 ---
+// src/pages/mostrar.astro
 import MostrarPersonas from "../../../components/crud/personas/MostrarPersonas.astro";
 import Layout from "../../../layouts/Layout.astro";
 ---
 
 <Layout>
   <main class="relative min-h-screen">
-    <!-- Fondo de imagen (ocupa toda la pantalla y queda fijo) -->
+    <!-- Fondo -->
     <div 
       class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
       style="background-image: url('/fondoForm.webp')"
     ></div>
     
-    <!-- Contenido principal (con márgenes para evitar el header y footer) -->
-    <div class="flex w-full pb-8 min-h-full">  <!-- Ajusta `pt-16` según la altura de tu header -->
-      <!-- Espacio izquierdo (1/6) -->
+    <!-- Contenido -->
+    <div class="flex w-full pb-8 min-h-full">
       <div class="w-1/6"></div>
       
-      <!-- Componente central (4/6) con scroll si es necesario -->
-      <div class="w-4/6 max-h-[calc(100vhrem)] overflow-y-auto">  <!-- Ajusta `max-h` según necesites -->
-        <div class="w-full p-6 bg-blue-800 rounded-lg shadow-md">
+      <div class="w-4/6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <!-- Barra de Búsqueda -->
+        <div class="w-full p-4 bg-blue-700 rounded-t-lg sticky top-0 z-10">
+          <div 
+            x-data="searchBar()" 
+            x-init="initObserver"
+            class="relative"
+          >
+            <div class="flex items-center gap-2">
+              <input 
+                type="text" 
+                x-model="searchTerm"
+                @input.debounce.300ms="highlightMatches"
+                placeholder="Buscar en todos los campos..."
+                class="flex-1 p-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+              <button 
+                x-show="searchTerm" 
+                @click="searchTerm = ''; clearHighlight();" 
+                class="p-2 text-gray-600 hover:text-gray-800 bg-white rounded"
+              >
+                ✕ Limpiar
+              </button>
+            </div>
+            
+            <div 
+              x-show="searchTerm.length > 1" 
+              class="text-sm text-white mt-1 flex justify-between"
+            >
+              <span>
+                <span x-text="document.querySelectorAll('.min-w-full.bg-white tbody tr.bg-yellow-100').length"></span> 
+                resultados
+              </span>
+              <span class="text-blue-200">
+                Buscando: "<span x-text="searchTerm"></span>"
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tabla -->
+        <div class="w-full p-6 bg-blue-800 rounded-b-lg shadow-md">
           <MostrarPersonas />
         </div>
       </div>
       
-      <!-- Espacio derecho (1/6) -->
       <div class="w-1/6"></div>
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+  function searchBar() {
+    return {
+      searchTerm: '',
+      lastSearch: '',
+      
+      highlightMatches() {
+        if (this.searchTerm.length < 2) {
+          this.clearHighlight();
+          return;
+        }
+        
+        if (this.searchTerm === this.lastSearch) return;
+        this.lastSearch = this.searchTerm;
+        
+        const searchTerm = this.searchTerm.toLowerCase();
+        const table = document.querySelector('.min-w-full.bg-white');
+        if (!table) return;
+        
+        const rows = table.querySelectorAll('tbody tr');
+        let firstMatch = null;
+        
+        rows.forEach(row => {
+          const rowText = row.textContent.toLowerCase();
+          if (rowText.includes(searchTerm)) {
+            row.classList.add('bg-yellow-100', 'border-l-4', 'border-yellow-500');
+            if (!firstMatch) firstMatch = row;
+          } else {
+            row.classList.remove('bg-yellow-100', 'border-l-4', 'border-yellow-500');
+          }
+        });
+        
+        if (firstMatch) {
+          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      },
+      
+      clearHighlight() {
+        const table = document.querySelector('.min-w-full.bg-white');
+        if (!table) return;
+        
+        table.querySelectorAll('tbody tr').forEach(row => {
+          row.classList.remove('bg-yellow-100', 'border-l-4', 'border-yellow-500');
+        });
+        this.lastSearch = '';
+      },
+      
+      initObserver() {
+        const observer = new MutationObserver(() => {
+          if (this.searchTerm) this.highlightMatches();
+        });
+        
+        const tableContainer = document.querySelector('.overflow-x-auto');
+        if (tableContainer) {
+          observer.observe(tableContainer, { 
+            childList: true, 
+            subtree: true 
+          });
+        }
+      }
+    }
+  }
+</script>
+
+<style is:global>
+  .min-w-full.bg-white tbody tr.bg-yellow-100 {
+    background-color: #fef9c3 !important;
+    border-left: 4px solid #f59e0b !important;
+  }
   
+  .min-w-full.bg-white tbody tr.bg-yellow-100 td {
+    color: #1e3a8a !important;
+    font-weight: 500 !important;
+  }
   
+  .min-w-full.bg-white tbody tr.bg-yellow-100:hover {
+    background-color: #fef08a !important;
+  }
+</style>

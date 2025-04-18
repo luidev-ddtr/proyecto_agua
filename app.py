@@ -13,7 +13,7 @@ CORS(app, resources={
 })
 
 #Seccion para recibir datos del formulario crear personas 
-from crud.personas.persona import menu_crear, menu_mostrar #, menu_modificar
+from crud.personas.persona import menu_crear, menu_mostrar, obtener_registro, menu_modificar
 @app.route('/app/create_us', methods=['POST'])
 def registrar_persona():
     try:
@@ -51,27 +51,42 @@ def mostrar_persona():
         }), 500
 
 
-# @app.route('/app/modifique_us', methods=['POST'])
-# def modificar_persona():
-#     """
-#     Enpoint el cual recibe un id y con este se va aun registro con el cual modificara 
-#     los datos de una persona solo hara eso 
-#     """
-#     try:
-#         id_persona = request.get_json()
+@app.route('/app/get_us', methods=['GET'])
+def obtener_persona():
+    try:
+        id_persona = request.get_json()
         
-#                 # Verificar si se recibieron datos
-#         if not id_persona:
-#             return jsonify({'error': 'No se recibieron datos JSON'}), 400
+        if not id_persona:
+            return jsonify({'error': 'No se recibieron datos JSON'}), 400
         
-#         registro = menu_modificar(id_persona)
+        registro = obtener_registro(id_persona)
         
-#     except Exception as e:
-#         # Manejar cualquier error inesperado
-#         return jsonify({
-#             'status': 'error',
-#             'message': str(e)
-#         }), 500
+        return jsonify({"datos devueltos":registro})
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+@app.route('/app/update_us', methods=['POST'])
+def actualizar_registro():
+    try:
+        datos = request.get_json()
+        
+        if not datos:
+            return jsonify({'error': 'No se recibieron datos JSON'}), 400
+        
+        respuesta = menu_modificar(datos)
+        
+        if respuesta:
+            return jsonify({'Perfecto':"datos actualizados correctamente"}), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
 
 
 if __name__ == '__main__':
