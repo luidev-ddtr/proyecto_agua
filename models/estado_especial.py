@@ -5,16 +5,25 @@ class TablaEstado:
         Obtiene el nombre del estado especial según su ID.
         
         Args:
-            numero (int/None): ID del estado especial (puede ser None)
-            conn (Conexion): Objeto de conexión a la base de datos
+            numero (int): ID del estado especial (debe ser un ID válido existente).
+            conn (Conexion): Objeto de conexión a la base de datos.
             
         Returns:
-            str: Nombre del estado o 'Ninguno' si no existe o es None
+            str: Nombre del estado (ej. 'Madre soltera', 'Discapacitado').
+            
+        Raises:
+            ValueError: Si el ID no existe en la tabla o es None.
         """
+        if numero is None:
+            raise ValueError("El ID del estado no puede ser None")
+            
         cursor = conn.conexion()[1]  # Obtiene el cursor
         query = "SELECT nombre FROM estados_especiales WHERE id = ?"
         cursor.execute(query, (numero,))
         
         resultado = cursor.fetchone()
-        return resultado[0] if resultado else 'Ninguno'
-
+        
+        if not resultado:
+            raise ValueError(f"No existe un estado especial con ID = {numero}")
+        
+        return resultado[0]  # Retorna el nombre del estado (ej. 'Discapacitado')

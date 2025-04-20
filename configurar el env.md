@@ -64,3 +64,25 @@ python -m pytest -v
 
 # Monitorear logs en tiempo real
 Get-Content -Path "logs/app.log" -Wait  # Si guardas logs en archivo
+
+
+# COMO SUBIR TUS CAMBOS A GIT SIN MORIRI EN EL INTENTO  
+Opción 1: Agregar archivos modificados manualmente (recomendado para precisión)
+
+
+git add app.py
+git add tu_archivo_a.subir
+
+# Opción 2: Usar git add -u (agrega solo archivos rastreados modificados)
+
+git add -u
+
+# Después de ejecutar cualquiera de estos comandos, verifica con:
+
+git status
+
+# Hacer el commit en el cual describes los cambios 
+git commit -m "Tu mensaje descriptivo del commit"
+
+
+# por ultimo usas git push para subir los cambios 
