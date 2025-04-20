@@ -66,7 +66,7 @@ python -m pytest -v
 Get-Content -Path "logs/app.log" -Wait  # Si guardas logs en archivo
 
 
-# Como subir tus cambios a git y no morir en el intento 
+# COMO SUBIR TUS CAMBOS A GIT SIN MORIRI EN EL INTENTO  
 Opción 1: Agregar archivos modificados manualmente (recomendado para precisión)
 
 

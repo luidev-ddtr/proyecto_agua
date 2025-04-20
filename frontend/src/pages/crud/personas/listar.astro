@@ -5,7 +5,7 @@ import Layout from "../../../layouts/Layout.astro";
 ---
 
 <Layout>
-  <main class="relative min-h-screen">
+  <main class="relative flex flex-col" style="min-height: 100vh;">
     <!-- Fondo -->
     <div 
       class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -13,10 +13,10 @@ import Layout from "../../../layouts/Layout.astro";
     ></div>
     
     <!-- Contenido -->
-    <div class="flex w-full pb-8 min-h-full">
-      <div class="w-1/6"></div>
+    <div class="flex flex-1 w-full pb-8">
+      <div class="w-1/12"></div>
       
-      <div class="w-4/6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <div class="w-10/12 flex flex-col">
         <!-- Barra de Búsqueda -->
         <div class="w-full p-4 bg-blue-700 rounded-t-lg sticky top-0 z-10">
           <div 
@@ -57,12 +57,12 @@ import Layout from "../../../layouts/Layout.astro";
         </div>
         
         <!-- Tabla -->
-        <div class="w-full p-6 bg-blue-800 rounded-b-lg shadow-md">
+        <div class="flex-1 w-full p-6 bg-blue-800 rounded-b-lg shadow-md overflow-y-auto">
           <MostrarPersonas />
         </div>
       </div>
       
-      <div class="w-1/6"></div>
+      <div class="w-1/12"></div>
     </div>
   </main>
 </Layout>
