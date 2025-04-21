@@ -77,9 +77,7 @@ def actualizar_registro():
         }), 500
 """
 ESTOS SON LOS DATOS RECIBIDOS DESDE EL FRONT 
-
 lo demas paree estar bien 
-
 ERRORES estado_especial DEBE SER UN NUMERO AL IGUAL QUE estudia
 {'id': 'CEN-JT-02-3465', 'nombre_completo': 'juan Joel', 'estado_especial': 'Madre soltera',
 'manzana': 'Centro', 'estudia': 'No', 'fecha_nacimiento': '2002-02-19'}
