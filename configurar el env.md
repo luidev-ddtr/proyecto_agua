@@ -86,3 +86,30 @@ git commit -m "Tu mensaje descriptivo del commit"
 
 
 # por ultimo usas git push para subir los cambios 
+
+
+
+
+
+
+
+
+
+
+
+# CREAR UNA NUEVA RAMA YA QUE SE ELIMINO LA REMOTA PERO SIGUE ESTANDO LA LOCAL 
+ASEGURATE QUE ESTES EN LA RAMA DESEADA 
+
+git branch
+  main
+* rama-core
+
+# SI QUIERES CAMBIAR EL NOMBRE LO HACES ASI 
+git branch -m rama-core (NOMBRE ANTIGUO) rama-core-fix (NUEVO NOMBRE)
+
+
+
+#  Paso 3: Sube la nueva rama al repositorio remoto
+Ahora puedes subir tu rama (ya sea con el nombre original o el nuevo) a GitHub/GitLab/Bitbucket:
+
+git push origin nombre-de-tu-rama-local

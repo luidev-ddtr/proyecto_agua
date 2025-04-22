@@ -1,0 +1,125 @@
+<div class="p-4">
+  <div
+    x-data="{
+
+//Metodos para  mostrar los datos 
+
+      personas: [],
+      isLoading: true,
+      error: null,
+      showModal: false,
+      form: {
+        id: null,
+        nombre: '',
+        apellidos: '',
+        estado_especial: '',
+        manzana: '',
+        estudia: '0',
+        fecha_nac: ''
+      },
+      errors: {
+        nombre: '',
+        apellidos: '',
+        estadoEspecial: '',
+        manzana: '',
+        fechaNac: ''
+      },
+      isSubmitting: false,
+      
+      fetchData() {
+        fetch('http://localhost:5000/app/read_pay')
+          .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta');
+            return response.json();
+          })
+          .then(data => {
+            this.personas = data.Perfecto;
+            this.isLoading = false;
+          })
+          .catch(err => {
+            this.error = 'Error al cargar datos';
+            console.error('Fetch error:', err);
+          });
+      },
+      
+      getEstadoPagoClass(estado) {
+        switch(estado) {
+          case '0': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+          case '1': return 'bg-green-100 text-green-800 border-green-200';
+          default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+      },
+
+             getEstadoPagoText(estado) {
+          switch(estado) {
+            case '0': return 'Pendiente';
+            case '1': return 'Completo';
+            default: return 'Desconocido';
+          }
+        },
+  }"
+      x-init="fetchData"
+    >
+  
+ <!-- Loading State -->
+ <template x-if="isLoading">
+  <div class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2"></div>
+    <p class="mt-2 text-gray-600">Cargando registros...</p>
+  </div>
+</template>
+
+<!-- Error State -->
+<template x-if="error">
+  <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-4" x-text="error"></div>
+</template>
+
+<!-- Table -->
+<template x-if="!isLoading && !error" x-html="`
+  <div class='overflow-x-auto rounded-lg shadow-lg border border-gray-200'>
+    <table class='min-w-full bg-white rounded-lg'>
+      <thead class='bg-black text-white'>
+        <tr>
+          <th class='py-3 px-4 text-left font-normal'>Nombre Completo</th>
+          <th class='py-3 px-4 text-left font-normal'>Estado</th>
+          <th class='py-3 px-4 text-left font-normal'>Tomas de Agua</th>
+          <th class='py-3 px-4 text-left font-normal'>Año de pago</th>
+          <th class='py-3 px-4 text-left font-normal'>Fecha de pago</th>
+          <th class='py-3 px-4 text-left font-normal'>Estado de pago</th>
+          <th class='py-3 px-4 text-left font-normal'>Cantidad</th>
+          <th class='py-3 px-4 text-left font-normal'>Tarifa pendiente</th>
+        </tr>
+      </thead>
+      <tbody class='divide-y divide-gray-200'>
+        ${personas.map(persona => `
+          <tr class='hover:bg-blue-50 transition-colors duration-200 ease-in-out'>
+            <td class='py-3 px-4 text-gray-800'>${persona.nombre_completo || 'N/A'}</td>
+            <td class='py-3 px-4'>
+              <span class='px-3 py-1.5 inline-flex items-center text-xs font-semibold rounded-full ${
+                persona.activo === 'Activo' 
+                  ? 'bg-green-100 text-green-800 border border-green-200' 
+                  : 'bg-red-100 text-red-800 border border-red-200'
+              }'>
+                ${persona.activo || 'No especificado'}
+              </span>
+            </td>
+            <td class='py-3 px-4 text-gray-600'>${persona.tomas_agua || 0}</td>
+            <td class='py-3 px-4 text-gray-600'>${persona.año || 'N/A'}</td>
+            <td class='py-3 px-4 text-gray-600'>${persona.fecha_pago || 'N/A'}</td>
+            <td class='py-3 px-4'>
+              <span class='px-3 py-1.5 inline-flex items-center text-xs font-semibold rounded-full border ${
+                getEstadoPagoClass(persona.estado_pago)
+              }'>
+                ${getEstadoPagoText(persona.estado_pago)}
+              </span>
+            </td>
+            <td class='py-3 px-4 text-gray-600'>$${persona.cantidad?.toFixed(2) || '0.00'}</td>
+            <td class='py-3 px-4 text-gray-600'>$${persona.tarifa_pendiente?.toFixed(2) || '0.00'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+`"></template>
+</div>
+  
