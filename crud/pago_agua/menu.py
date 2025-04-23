@@ -40,8 +40,6 @@ def mostrar():
     """Funcion intermedia la cual se comunica con as clases de mostrar y trae los 
     datos al edpoint"""
     
-    print("Bandera 0 \n")
-    
     visualizador = MostrarDatos()
     conexion_db= Conexion('base_datos/data_base.db')
     
@@ -52,3 +50,29 @@ def mostrar():
         return datos
     else:
         return []
+    
+def modificar(datos):
+    
+    #Funcion aun no funciona bien 
+    conexion_db= Conexion('base_datos/data_base.db')
+    md_registro = Modificate_register()
+    visuali = MostrarDatos()
+    print("Banderas 1")
+    
+    
+    registro = Registro(datos["id_persona"],datos["tomas"], 
+                        datos["anio"], datos["fecha_pago"], 
+                        datos["cantidad"], datos["estado_pago"], 
+                        datos["tarifa_pendiente"], datos["id_registro"], True)
+    
+    print("Si hizo registro")
+    resultado = md_registro.modificar_dato(registro,conexion_db) 
+    
+    print("mostrarando datos reados")
+    visuali.mostrar_registro(datos["id_registro"],conexion_db)
+    
+    conexion_db.cerrar_conexion()
+    if resultado:
+        return True
+    else:
+        return False

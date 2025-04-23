@@ -1,96 +1,62 @@
 #clase para modificar a los registros de pago 
 import datetime
 class Modificate_register:
-    def modificar_dato(self, ojeto, conexion_db):
-        """Modifica los datos de una persona con validación de entradas.
-        
-        params
-        :param dato Instancia de persona la cual tiene la informacion
-        :param conexion_db Instancia de la clase Conexion.
+    def modificar_dato(self, objeto, conexion_db):
         """
-        conexion, cursor = conexion_db.conexion()
+        Modifica los datos editables de una persona en la base de datos.
         
-        campos_modificables = {
-            3: ('tomas_agua', int),             # Tomas de Agua
-            5: ('fecha_pago', 'date'),          # Fecha de Pago
-            7: ('cantidad', float)              # Cantidad
-        }
-
-        campos_no_modificables = {
-            1: ('id', str),                     # ID (no modificable)
-            2: ('id_persona', str),             # ID Persona (no modificable)
-            4: ('año', str),                    # Año (aunque es str, lo mantienes modificable?)
-            6: ('estado_pago', str),            # Estado de Pago (calculado, no modificable)
-            8: ('tarifa_pendiente', str)        # Tarifa Pendiente (calculada, no modificable)
-        }
-
-        while True:
-            print(f"""\nMENU DE MODIFICAR REGISTRO
-            Datos actuales:
-            ----------------------
-            1) ID: {ojeto.id_registro} [NO MODIFICABLE]
-            2) ID Persona: {ojeto.id_persona} [NO MODIFICABLE]
-            3) Tomas de Agua: {ojeto.tomas_agua}
-            4) Año: {ojeto.año} [NO MODIFICABLE]
-            5) Fecha de Pago: {ojeto.fecha_pago}
-            6) Estado de Pago: {ojeto.estado_pago} [NO MODIFICABLE]
-            7) Cantidad: {ojeto.cantidad}
-            8) Tarifa Pendiente: {ojeto.tarifa_pendiente} [NO MODIFICABLE]
-            ----------------------
-            Opciones:
-            3,4,5,7. Modificar campo correspondiente
-            9. Guardar y salir""")
+        Args:
+            objeto (Persona): Instancia de Persona con la información actualizada
+            conexion_db (Conexion): Instancia de la clase Conexion
+        
+        Returns:
+            bool: True si la actualización fue exitosa, False si hubo error
+        """
+        try:
+            conexion, cursor = conexion_db.conexion()
             
-            opcion = input("Seleccione una opción: ").strip()
             
-            if opcion == '9':
-                # Guardar todos los cambios y salir
-                conexion_db.guardar_cambios()
-                print("✓ Todos los cambios guardados correctamente")
-                break
-                
-            if not opcion.isdigit() or int(opcion) not in campos_modificables:
-                print("¡Opción no válida! Solo puede modificar los campos 3,4,5,7")
-                continue
-                
-            opcion = int(opcion)
-            campo, tipo = campos_modificables[opcion]
+            # Consulta SQL con campos editables
+            consulta_sql = """
+                UPDATE pagos_agua 
+                SET fecha_pago = ?, 
+                    estado_pago = ?,
+                    cantidad = ?,
+                    tarifa_pendiente = ?
+                WHERE id = ?
+            """
+            # Valores para la consulta
+            valores = (
+                objeto.fecha_pago,
+                objeto.estado_pago,
+                objeto.cantidad,
+                objeto.tarifa_pendiente,
+                objeto.id_registro
+            )
+            # Ejecutar la consulta
+            cursor.execute(consulta_sql, valores)
             
-            if tipo == int:  # Campo Tomas de agua
-                while True:
-                    valor = input("Ingrese la nueva cantidad de tomas de agua: ")
-                    if valor.isdigit():
-                        nuevo_valor = int(valor)
-                        break
-                    print("Error: Debe ingresar un número entero")
-                    
-            elif tipo == 'date':  # Fecha de pago
-                while True:
-                    valor = input("Ingrese la nueva fecha de pago (YYYY-MM-DD): ").strip()
-                    try:
-                        datetime.strptime(valor, '%Y-%m-%d')
-                        nuevo_valor = valor
-                        break
-                    except ValueError:
-                        print("Formato incorrecto. Use AAAA-MM-DD (ej. 2000-05-15)")
-                        
-            elif tipo == float:  # Cantidad
-                while True:
-                    valor = input("Ingrese la cantidad recibida: ").strip()
-                    try:
-                        nuevo_valor = float(valor)
-                        break
-                    except ValueError:
-                        print("Error: Debe ingresar un número válido (ej. 150.50)")
-                        
-            setattr(ojeto, campo, nuevo_valor)
+            # Verificar si se actualizó algún registro
+            if cursor.rowcount == 0:
+                print(f"⚠️ Advertencia: No se actualizó el registro ID: {objeto.id_registro}")
+                return False
             
-            # Actualizar la base de datos
+            # Confirmar cambios
+            conexion_db.guardar_cambios()
+            print(f"✅ Éxito: Registro ID: {objeto.id_registro} actualizado correctamente")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error crítico al actualizar registro ID {objeto.id_registro}:")
+            print(f"Tipo de error: {type(e).__name__}")
+            print(f"Mensaje: {str(e)}")
+            
+            # Intentar hacer rollback si la conexión sigue activa
             try:
-                cursor.execute(f"UPDATE registros SET {campo} = ? WHERE id_registro = ?", 
-                            (nuevo_valor, ojeto.id_registro))
-                conexion_db.guardar_cambios()
-                print("✓ Cambio guardado")
-            except Exception as e:
-                print(f"× Error al actualizar en BD: {str(e)}")
-                continue
+                if 'conexion' in locals() and conexion:
+                    conexion.rollback()
+                    print("↩️ Se realizó rollback de la transacción")
+            except Exception as rollback_error:
+                print("⚠️ Error al intentar hacer rollback:", str(rollback_error))
+            
+            return False

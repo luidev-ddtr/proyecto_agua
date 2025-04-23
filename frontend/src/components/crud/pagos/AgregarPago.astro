@@ -240,10 +240,6 @@
                this.errors.cantidad = 'Debe ser entre 0 y 1500';
                return false;
              }
-             if (this.form.cantidad % 50 !== 0) {
-               this.errors.cantidad = 'Debe ser múltiplo de 50';
-               return false;
-             }
              this.errors.cantidad = '';
              return true;
            },

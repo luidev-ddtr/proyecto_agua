@@ -102,7 +102,6 @@ class Registro:
             ValueError: Si cantidad no es provista para un nuevo registro.
         """
         #Registro nuevo
-        
         if id_registro is None and recalcular is None:
             self.id_persona = str(id_persona)
             self.tomas_agua = int(tomas_agua) 
@@ -111,17 +110,16 @@ class Registro:
             self.fecha_pago = str(fecha_pago)
             self.cantidad = int(cantidad)
             self.estado_pago, self.tarifa_pendiente = self.calcular_estado(estado_pago,tarifa_pendiente)
-            
+            print("Nuevo registro from models/pago_agua")
         #para diferenciar entre datos traidos de la bd y datos a modificar
         elif recalcular == True:
             self.id_registro = str(id_registro)
             self.id_persona = str(id_persona)
             self.tomas_agua = int(tomas_agua) 
-            self.año = año
-            self.fecha_pago = fecha_pago
+            self.año = str(año)
+            self.fecha_pago = str(fecha_pago)
             self.cantidad = int(cantidad)
             self.estado_pago, self.tarifa_pendiente = self.calcular_estado(estado_pago,tarifa_pendiente)
-            
         else:
                 #Datos cargados desde la bd
             self.id_registro = str(id_registro)
@@ -132,6 +130,7 @@ class Registro:
             self.cantidad = int(cantidad)
             self.estado_pago = estado_pago
             self.tarifa_pendiente = tarifa_pendiente  
+            print("registro editar from models/pago_agua")
 
     def generar_id(self):
         """Genera un ID único con formato simplificado: 3LETRASID-AÑO-CODIGO.
@@ -222,7 +221,7 @@ class CalculadoraCobro:
         pago_servicio = TarifaPago()
         pago_anual = pago_servicio.get_costo_anual()
         
-        if tomas_agua > 1:
+        if tomas_agua > 1 and tarifa_pendiente is None: #para validar los casos en que el registro ya viene con tarifa pendiente 
             pago_anual = pago_anual * tomas_agua
         
         # Lógica general

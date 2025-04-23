@@ -224,7 +224,7 @@ class TablaPersona(BaseDatos):
         conexion_db.guardar_cambios()
         print(f"✅ Registro ID: {objeto.id_persona} actualizado correctamente.")
         return True
-    
+
 
     def eliminar_dato(self, id_persona, conexion_db):
         """
