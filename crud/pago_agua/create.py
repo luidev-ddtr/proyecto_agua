@@ -1,6 +1,7 @@
 #Logica para crear un registro y meterlo a la bd
 from models.pago_agua import Registro
 from utils.nucleo import Conexion
+
 class Create:
     def agregar_registro(self, registro, conexion_bd):
         """Metodo para introducir registros a la base de datos"""
@@ -23,9 +24,15 @@ class Create:
         )
         cursor.execute(query, valores)
         conexion_bd.guardar_cambios()
-        print("✅ Datos insertados correctamente.")
         
+        if cursor.rowcount > 0:
+            print("✅ Datos insertados correctamente.")
+            return True
+        else:
+            print("⚠️ No se insertaron datos (posiblemente hubo un error o las condiciones no se cumplieron).")
+            return False
     
+
 if __name__ == "__main__":
     print("Menu de pagos agua")
     añadir = Create()

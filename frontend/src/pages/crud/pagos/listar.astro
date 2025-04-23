@@ -1,6 +1,6 @@
 ---
 // src/pages/mostrar.astro
-import MostrarPersonas from "../../../components/crud/personas/MostrarPersonas.astro";
+import MostrarPagos from "../../../components/crud/pagos/MostrarPagos.astro";
 import Layout from "../../../layouts/Layout.astro";
 ---
 
@@ -14,9 +14,8 @@ import Layout from "../../../layouts/Layout.astro";
     
     <!-- Contenido -->
     <div class="flex flex-1 w-full pb-8">
-      <div class="w-1/12"></div>
       
-      <div class="w-10/12 flex flex-col">
+      <div class="w-12/12 flex flex-col">
         <!-- Barra de Búsqueda -->
         <div class="w-full p-4 bg-blue-700 rounded-t-lg sticky top-0 z-10">
           <div 
@@ -58,11 +57,10 @@ import Layout from "../../../layouts/Layout.astro";
         
         <!-- Tabla -->
         <div class="flex-1 w-full p-6 bg-blue-800 rounded-b-lg shadow-md overflow-y-auto">
-          <MostrarPersonas />
+          <MostrarPagos />
         </div>
       </div>
       
-      <div class="w-1/12"></div>
     </div>
   </main>
 </Layout>

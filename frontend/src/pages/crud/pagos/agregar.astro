@@ -1,0 +1,25 @@
+---
+// src/pages/ruta/AgregarPago.astro
+import Layout from "../../../layouts/Layout.astro";
+import AgregarPago from "../../../components/crud/pagos/AgregarPago.astro";
+---
+
+<Layout>
+    <main class="relative flex flex-col" style="min-height: 100vh;">
+            <!-- Fondo -->
+        <div 
+            class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+            style="background-image: url('/fondoForm.webp')"
+        ></div>
+        <!-- Contenedor izquierdo (buscador) - 5/6 del ancho -->
+            <div class="w-6/6 flex flex-col">
+                <div >
+                    <!-- Espacio reservado para el buscador que manejará AgregarPago -->
+                    <div id="buscador-container">
+                        <AgregarPago />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>

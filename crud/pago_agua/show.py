@@ -1,4 +1,5 @@
 #Logica para todos los metodos de mostrar datos al usuario
+from crud.personas.persona import MostrarDatos as mostrar_persona
 class MostrarDatos:
     def mostrar_registro(self, indice, conexion_db):
         """
@@ -7,7 +8,6 @@ class MostrarDatos:
         Args:
             indice (str): ID del registro a buscar
             conexion_db (object): Instancia de conexión a la base de datos
-            
         Returns:
             dict/None: Diccionario con datos formateados o None si no existe
             
@@ -54,8 +54,11 @@ class MostrarDatos:
         """
         # 1. Obtener conexión y ejecutar consulta
         conexion, cursor = conexion_db.conexion()
+        
         cursor.execute("""
-            id, persona_id, tomas_agua, año, fecha_pago, estado_pago, cantidad, tarifa_pendiente
+            SELECT id, persona_id, tomas_agua, año,
+            fecha_pago, estado_pago, cantidad,
+            tarifa_pendiente
         FROM pagos_agua
         """)
         
@@ -65,21 +68,28 @@ class MostrarDatos:
             return []
         
         resultados = []
-        
+        nombre_persona = mostrar_persona()
         for registro in registros:
+            
+            "Se obtiene el nombre completo de la persona"
+            datos  = nombre_persona.mostrar_registro_persona(registro[1],conexion_db)
             
             # Estructurar datos
             datos_registro = {
                 'id': registro[0],
                 'id_persona': registro[1],
-                'tomas_agua': {registro[2]},
+                ##Aqui cambia para meter el nombre de la persona y no solo datos como id
+                # los cuales no le interesan al usuario 
+                'nombre_completo': datos['nombre_completo'],
+                'activo': datos['activo'],
+                'tomas_agua': registro[2],
                 'año': registro[3],
                 'fecha_pago': registro[4],
                 'estado_pago': registro[5] ,#Logica para que muestre pendiente, pagado, parcial
                 'cantidad': registro[6],
                 'tarifa_pendiente': registro[7]
+                
             }
-            print(datos_registro)
             resultados.append(datos_registro)
         
         return resultados

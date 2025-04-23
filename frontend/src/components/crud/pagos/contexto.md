@@ -1,0 +1,677 @@
+Stack Tecnológico:
+
+Frontend: Astro + Alpine.js (componente de búsqueda)
+
+Backend: Flask (API de búsqueda)
+
+Comunicación: Fetch API (HTTP GET)
+
+Flujo de Búsqueda:
+
+Frontend (Alpine.js):
+
+Captura input con debounce (300ms)
+
+Valida término (>2 caracteres)
+
+Muestra estados: loading/error/resultados
+
+Backend (Flask - /app/buscar_us):
+
+Recibe: GET /app/buscar_us?q=termino
+
+Valida término
+
+Filtra en memoria (lista de diccionarios)
+
+Envía resultados formateados:
+
+json
+{
+  "results": [
+    {
+      "id": "ID",
+      "text": "Nombre (ID)",
+      "data": { /* todos los campos */ },
+      "selectable": bool
+    }
+  ]
+}
+Características Clave:
+
+Filtrado multi-campo (nombre, ID, manzana)
+
+Cache básico con @lru_cache
+
+Diferenciación activos/inactivos (selectable)
+
+Eventos Alpine para selección (persona-seleccionada)
+
+Contexto Astro:
+
+Componente AgregarPago.astro encapsula:
+
+Lógica de búsqueda (Alpine)
+
+Estructura 40%-20%-40%
+
+Comunicación con formulario derecho
+
+Optimizaciones:
+
+Debounce cliente/servidor
+
+Limitación a 20 resultados
+
+Serialización mínima de datos
+
+Estructura clave
+
+x-data="{
+  searchTerm: '',       // Input del usuario
+  isLoading: false,     // Estado de carga
+  results: [],          // Resultados de búsqueda
+  activeItem: null,     // Item seleccionado
+
+  // Búsqueda con debounce
+  async search() {
+    if (this.searchTerm.length < 2) {
+      this.results = [];
+      return;
+    }
+    
+    this.isLoading = true;
+    const res = await fetch(`/app/buscar_us?q=${this.searchTerm}`);
+    this.results = (await res.json()).results;
+    this.isLoading = false;
+  },
+
+  // Selección de item
+  selectItem(item) {
+    if (!item.selectable) return;
+    this.activeItem = item;
+    dispatch('persona-seleccionada', item);
+  }
+}"
+Flujo de Datos:
+
+Entrada:
+
+Usuario escribe → searchTerm actualiza
+
+Debounce (300ms) → Llama search()
+
+Salida:
+
+results[] con objetos formateados:
+
+javascript
+{
+  id: String,
+  text: 'Nombre (ID)',       // Para mostrar
+  data: { /* Campos originales */ },
+  selectable: Boolean        // Filtro por estado
+}
+Eventos:
+
+persona-seleccionada con datos completos al hacer clic en item válido
+
+Features Clave:
+
+Filtrado visual de items !selectable (inactivos)
+
+Tracking de item activo (activeItem)
+
+Manejo de estados (loading/error)
+
+Integración con diseño Astro (40% ancho)
+
+
+
+
+
+
+
+
+
+
+
+//Metodos para el formulario de modificar 
+
+
+
+        
+  openEditModal(persona) {
+    this.form = {
+      id: persona.id,
+      nombre: persona.nombre_completo ? persona.nombre_completo.split(' ')[0] : '',
+      apellidos: persona.nombre_completo ? persona.nombre_completo.split(' ').slice(1).join(' ') : '',
+      estado_especial: this.mapEstadoEspecialBackendToFrontend(persona.estado_especial),
+      manzana: persona.manzana || '',
+      estudia: persona.estudia === 'Sí' ? '1' : '0',
+      fecha_nac: persona.fecha_nacimiento ? this.formatDateForInput(persona.fecha_nacimiento) : ''
+    };
+    this.showModal = true;
+    
+    // Limpiar errores al abrir el modal
+    this.errors = {
+      nombre: '',
+      apellidos: '',
+      estadoEspecial: '',
+      manzana: '',
+      fechaNac: ''
+    };
+  },
+  
+  // Añade este método nuevo para mapear valores
+  mapEstadoEspecialBackendToFrontend(estadoBackend) {
+    if (!estadoBackend) return ''; // Valor inicial vacío
+    
+    // Mapea los valores descriptivos a los numéricos
+    const mapping = {
+      'Ninguno': '1',
+      'Madre soltera': '2',
+      'Discapacitado': '3',
+      'Enfermo': '4'
+    };
+    
+    return mapping[estadoBackend] || '';
+  },
+        
+        formatDateForInput(dateString) {
+          // Convertir de YYYY-MM-DD a DD/MM/YYYY
+          if (!dateString) return '';
+          const [year, month, day] = dateString.split('-');
+          return `${day}/${month}/${year}`;
+        },
+        
+        formatDateForAPI(dateString) {
+          // Convertir de DD/MM/YYYY a YYYY-MM-DD
+          if (!dateString) return '';
+          const [day, month, year] = dateString.split('/');
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        },
+        
+        closeModal() {
+          this.showModal = false;
+          this.form = {
+            id: null,
+            nombre: '',
+            apellidos: '',
+            estado_especial: '',
+            manzana: '',
+            estudia: '0',
+            fecha_nac: ''
+          };
+          this.isSubmitting = false;
+        },
+        
+        // Funciones de validación y formato
+        formatearNombre() {
+          this.form.nombre = this.form.nombre.replace(/[^A-Za-zÁ-úÜüÑñ]/g, '');
+          if (this.form.nombre.length > 0) {
+            this.form.nombre = this.form.nombre.charAt(0).toUpperCase() + this.form.nombre.slice(1).toLowerCase();
+          }
+          this.validarNombre();
+        },
+        
+        validarNombre() {
+          if (this.form.nombre.length < 3 || this.form.nombre.length > 30) {
+            this.errors.nombre = 'El nombre debe tener entre 3 y 30 caracteres';
+            return false;
+          }
+          this.errors.nombre = '';
+          return true;
+        },
+        
+        formatearApellidos(event) {
+          requestAnimationFrame(() => {
+            let valor = event.target.value;
+            valor = valor.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, '');
+            valor = valor.replace(/\s+/g, ' ').trimStart();
+            this.form.apellidos = valor;
+          });
+        },
+        
+        validarApellidos() {
+          const valor = this.form.apellidos.replace(/\s+/g, ' ').trim();
+          const palabras = valor.split(' ').filter(p => p !== '');
+        
+          this.errors.apellidos = '';
+        
+          if (palabras.length < 1 || palabras.length > 2) {
+            this.errors.apellidos = 'Debe ingresar 1 o 2 apellidos';
+            return false;
+          }
+        
+          for (const palabra of palabras) {
+            if (palabra.length < 2) {
+              this.errors.apellidos = 'Cada apellido debe tener al menos 2 letras';
+              return false;
+            }
+            if (palabra.length > 30) {
+              this.errors.apellidos = 'Cada apellido no puede exceder 30 letras';
+              return false;
+            }
+          }
+        
+          const formatoCorrecto = palabras.map(p =>
+            p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
+          ).join(' ');
+        
+          if (this.form.apellidos !== formatoCorrecto) {
+            this.form.apellidos = formatoCorrecto;
+          }
+        
+          return true;
+        },
+        
+  validarEstadoEspecial() {
+    if (this.form.estado_especial === '') {
+      this.errors.estadoEspecial = 'Por favor seleccione una opción';
+      return false;
+    }
+    
+    const opcionesValidas = ['1', '2', '3', '4'];
+    if (!opcionesValidas.includes(this.form.estado_especial)) {
+      this.errors.estadoEspecial = 'Selección inválida';
+      return false;
+    }
+    
+    this.errors.estadoEspecial = '';
+    return true;
+  },
+        
+        validarManzana() {
+          if (!this.form.manzana) {
+            this.errors.manzana = 'Debe seleccionar una manzana';
+            return false;
+          }
+          this.errors.manzana = '';
+          return true;
+        },
+        
+        formatearFechaInput() {
+          this.form.fecha_nac = this.form.fecha_nac.replace(/[^0-9/]/g, '');
+          
+          if (this.form.fecha_nac.length > 2 && this.form.fecha_nac.length <= 4 && !this.form.fecha_nac.includes('/')) {
+            this.form.fecha_nac = `${this.form.fecha_nac.slice(0, 2)}/${this.form.fecha_nac.slice(2)}`;
+          } else if (this.form.fecha_nac.length > 5 && this.form.fecha_nac.split('/').length < 3) {
+            this.form.fecha_nac = `${this.form.fecha_nac.slice(0, 5)}/${this.form.fecha_nac.slice(5, 9)}`;
+          }
+          
+          this.form.fecha_nac = this.form.fecha_nac.slice(0, 10);
+          this.validarFecha();
+        },
+        
+        validarFecha() {
+          if (!this.form.fecha_nac) {
+            this.errors.fechaNac = 'La fecha de nacimiento es requerida';
+            return false;
+          }
+          
+          const partes = this.form.fecha_nac.split('/');
+          if (partes.length !== 3 || partes.some(p => !p)) {
+            this.errors.fechaNac = 'Formato de fecha inválido (DD/MM/AAAA)';
+            return false;
+          }
+        
+          const [diaStr, mesStr, anioStr] = partes;
+          const dia = parseInt(diaStr, 10);
+          const mes = parseInt(mesStr, 10);
+          const anio = parseInt(anioStr, 10);
+        
+          if (isNaN(dia) || isNaN(mes) || isNaN(anio)) {
+            this.errors.fechaNac = 'La fecha debe contener solo números';
+            return false;
+          }
+        
+          if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || anio < 1900 || anio > new Date().getFullYear()) {
+            this.errors.fechaNac = 'Fecha fuera de rango válido';
+            return false;
+          }
+        
+          const fecha = new Date(anio, mes - 1, dia);
+          if (fecha.getFullYear() !== anio || fecha.getMonth() !== mes - 1 || fecha.getDate() !== dia) {
+            this.errors.fechaNac = 'Fecha no válida';
+            return false;
+          }
+        
+          this.errors.fechaNac = '';
+          return true;
+        },
+        
+        scrollToFirstError() {
+          this.$nextTick(() => {
+            const errorFields = ['nombre', 'apellidos', 'estadoEspecial', 'manzana', 'fechaNac'];
+            for (const field of errorFields) {
+              const errorElement = document.querySelector(`[data-error='${field}']`);
+              if (errorElement && errorElement.offsetParent !== null) {
+                errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const inputElement = errorElement.previousElementSibling?.querySelector('input, select');
+                if (inputElement) inputElement.focus();
+                break;
+              }
+            }
+          });
+        },
+        
+        showNotification(message, type = 'success') {
+          const notification = document.createElement('div');
+          notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          } z-50`;
+          notification.textContent = message;
+          document.body.appendChild(notification);
+          
+          setTimeout(() => {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => notification.remove(), 300);
+          }, 3000);
+        },
+        
+        async saveChanges() {
+    this.isSubmitting = true;
+    
+    const validations = [
+      this.validarNombre(),
+      this.validarApellidos(),
+      this.validarEstadoEspecial(),
+      this.validarManzana(),
+      this.validarFecha()
+    ];
+    
+    if (validations.some(valid => !valid)) {
+      this.isSubmitting = false;
+      this.scrollToFirstError();
+      this.showNotification('Por favor corrige los errores en el formulario', 'error');
+      return;
+    }
+    
+    const formData = {
+      id: this.form.id,
+      nombre_completo: `${this.form.nombre} ${this.form.apellidos}`.trim(),
+      estado_especial: this.form.estado_especial,
+      manzana: this.form.manzana,
+      estudia: this.form.estudia,
+      fecha_nacimiento: this.formatDateForAPI(this.form.fecha_nac)
+    };
+    
+    try {
+      const response = await fetch('http://localhost:5000/app/update_us', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      console.log('Respuesta:', data);
+      this.showNotification('Cambios guardados exitosamente', 'success');
+      this.fetchData();
+      this.closeModal();
+      // CAMBIO AGREGADO: Refrescar la página después de guardar
+      setTimeout(() => {
+        location.reload();
+      }, 1000); // Esperar 1 segundo antes de recargar para que el usuario vea el mensaje de éxito
+    } catch (error) {
+      console.error('Error:', error);
+      this.showNotification('Error al guardar los cambios', 'error');
+    } finally {
+      this.isSubmitting = false;
+    }
+
+//codigo html
+      <!-- Modal de Edición -->
+      <div 
+        x-show="showModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+      >
+        <div 
+          x-show="showModal"
+          class="bg-[#035cb6] rounded-lg shadow-md w-full max-w-md max-h-[90vh] overflow-y-auto"
+          x-transition:enter="ease-out duration-300"
+          x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+          x-transition:leave="ease-in duration-200"
+          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        >
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-white text-center w-full">Editar Registro</h2>
+              <button 
+                @click="closeModal" 
+                class="text-white hover:text-gray-200 ml-4"
+              >
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+  
+            <form class="space-y-4" @submit.prevent="saveChanges">
+              <!-- Campo Nombre -->
+              <div>
+                <label for="nombre" class="block text-sm font-medium text-white">Nombre*</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  name="nombre"
+                  required
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                  placeholder="Ej: Ana, María (solo letras, 3-30 caracteres)"
+                  minlength="3"
+                  maxlength="30"
+                  x-model="form.nombre"
+                  @input="formatearNombre"
+                  @blur="validarNombre"
+                >
+                <div 
+                  x-show="errors.nombre" 
+                  x-transition
+                  data-error="nombre"
+                  class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  <span x-text="errors.nombre"></span>
+                </div>
+              </div>
+            
+              <!-- Campo Apellidos -->
+              <div>
+                <label for="apellidos" class="block text-sm font-medium text-white">Apellidos*</label>
+                <input
+                  type="text"
+                  id="apellidos"
+                  name="apellidos"
+                  required
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                  placeholder="Ej: Pérez García (1 o 2 apellidos)"
+                  x-model="form.apellidos"
+                  @input="formatearApellidos($event)"
+                  @blur="validarApellidos" 
+                >
+                <div 
+                  x-show="errors.apellidos" 
+                  x-transition
+                  data-error="apellidos"
+                  class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  <span x-text="errors.apellidos"></span>
+                </div>
+              </div>
+            
+              <!-- Campo Estado Especial -->
+              <div>
+                <label for="estado_especial" class="block text-sm font-medium text-white">Estado Especial*</label>
+                <select
+                id="estado_especial"
+                name="estado_especial"
+                required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 appearance-none"
+                x-model="form.estado_especial"
+                @change="validarEstadoEspecial"
+                  >
+                
+                <option value="" disabled selected class="text-gray-400">Seleccione una opción</option>
+                <option value="1" class="text-gray-800">Ninguno</option>
+                <option value="2" class="text-gray-800">Madre soltera</option>
+                <option value="3" class="text-gray-800">Discapacitado</option>
+                <option value="4" class="text-gray-800">Enfermo</option>
+              </select>
+                <div 
+                  x-show="errors.estadoEspecial" 
+                  x-transition
+                  data-error="estadoEspecial"
+                  class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  <span x-text="errors.estadoEspecial"></span>
+                </div>
+              </div>
+            
+  <!-- Campo Manzana - Modificado a solo lectura -->
+  <div class="relative">
+    <div class="flex items-center justify-between">
+      <label for="manzana" class="block text-sm font-medium text-white">Manzana*</label>
+      <span class="text-xs text-yellow-200 bg-blue-900 px-2 py-1 rounded">No modificable</span>
+    </div>
+    <select
+      id="manzana"
+      name="manzana"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-100 text-gray-800 appearance-none pr-10"
+      x-model="form.manzana"
+      disabled
+    >
+      <option value="" disabled selected class="text-gray-400">Seleccione una manzana</option>
+      <option value="Centro" class="text-gray-800">Centro</option>
+      <option value="Garambullo" class="text-gray-800">Garambullo</option>
+      <option value="Yondha" class="text-gray-800">Yondha</option>
+      <option value="Cerritos" class="text-gray-800">Cerritos</option>
+      <option value="Tepetate" class="text-gray-800">Tepetate</option>
+      <option value="Buena vista" class="text-gray-800">Buena vista</option>
+    </select>
+    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mt-6">
+      <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>
+    </div>
+    <div 
+      x-show="errors.manzana" 
+      x-transition
+      data-error="manzana"
+      class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+      </svg>
+      <span x-text="errors.manzana"></span>
+    </div>
+  </div>
+  
+              <!-- Campo Estudia -->
+              <fieldset class="space-y-2">
+                <legend class="block text-sm font-medium text-white">¿Estudia?*</legend>
+                <div class="mt-1 flex items-center space-x-4">
+                  <div class="inline-flex items-center">
+                    <input
+                      type="radio"
+                      id="estudia_si"
+                      name="estudia"
+                      value="1"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      x-model="form.estudia"
+                    >
+                    <label for="estudia_si" class="ml-2 text-white">Sí</label>
+                  </div>
+                  <div class="inline-flex items-center">
+                    <input
+                      type="radio"
+                      id="estudia_no"
+                      name="estudia"
+                      value="0"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      x-model="form.estudia"
+                      checked
+                    >
+                    <label for="estudia_no" class="ml-2 text-white">No</label>
+                  </div>
+                </div>
+              </fieldset>
+            
+  <!-- Campo Fecha de Nacimiento - Modificado a solo lectura -->
+  <div class="relative">
+    <div class="flex items-center justify-between">
+      <label for="fecha_nac" class="block text-sm font-medium text-white">Fecha de Nacimiento*</label>
+      <span class="text-xs text-yellow-200 bg-blue-900 px-2 py-1 rounded">No modificable</span>
+    </div>
+    <div class="mt-1">
+      <input
+        type="text"
+        id="fecha_nac"
+        name="fecha_nac"
+        placeholder="DD/MM/AAAA"
+        required
+        class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 text-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10"
+        maxlength="10"
+        x-model="form.fecha_nac"
+        readonly
+      >
+    </div>
+    <div class="absolute right-3 top-8 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </div>
+    <div 
+      x-show="errors.fechaNac" 
+      x-transition
+      data-error="fechaNac"
+      class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+      </svg>
+      <span x-text="errors.fechaNac"></span>
+    </div>
+  </div>
+            
+              <!-- Botones -->
+              <div class="flex space-x-4 pt-4">
+                <button
+                  type="button"
+                  @click="closeModal"
+                  class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  :disabled="isSubmitting"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-950 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  :disabled="isSubmitting"
+                  :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+                >
+                  <span x-show="!isSubmitting">Guardar Cambios</span>
+                  <span x-show="isSubmitting">Guardando...</span>
+                </button>
+              </div>
+            </form>
