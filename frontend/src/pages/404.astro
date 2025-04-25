@@ -1,0 +1,21 @@
+---
+import FlechaBoton from "../components/FlechaBoton.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <main class="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-800 overflow-hidden">
+        <div class="absolute inset-0 bg-gray-800 bg-opacity-80 z-0"></div>
+        
+        <section class="relative z-10 text-center p-6 max-w-2xl mx-auto">
+            <!-- Texto usando solo clases de Tailwind -->
+            <div class="text-8xl md:text-9xl font-bold text-purple-300 mb-4">404</div>
+            
+            <h2 class="text-2xl md:text-3xl font-bold text-purple-200 mb-4">Lo lamentamos, esta página no existe</h2>
+            
+            <p class="text-lg text-purple-100 mb-8">Parece que has seguido un enlace incorrecto o la página aún no ha sido creada.</p>
+            
+            <FlechaBoton texto="Volver al inicio" href="/" />
+        </section>
+    </main>
+</Layout>

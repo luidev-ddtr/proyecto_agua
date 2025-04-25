@@ -42,16 +42,27 @@
     },
     
     formatearApellidos(event) {
-      requestAnimationFrame(() => {
-        let valor = event.target.value;
-        valor = valor.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, '');
-        valor = valor.replace(/\s+/g, ' ').trimStart();
-        this.form.apellidos = valor;
-      });
-    },
+    const input = event.target;
+    const start = input.selectionStart; // Guardar posición del cursor
+    const end = input.selectionEnd;
+
+    let valor = input.value || '';
+    valor = valor.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, '');
+    valor = valor.replace(/ +/g, ' ').trimStart();
+    
+    // Actualizar el modelo y el valor del input
+    this.form.apellidos = valor;
+    
+    // Restaurar posición del cursor después de la actualización
+    requestAnimationFrame(() => {
+      input.setSelectionRange(start, end);
+    });
+  },
 
     validarApellidos() {
-      const valor = this.form.apellidos.replace(/\s+/g, ' ').trim();
+      let valor = this.form.apellidos || '';  // Definir valor desde el modelo
+      valor = valor.replace(/ +/g, ' ').trim();  // Trim completo en validación
+      
       const palabras = valor.split(' ').filter(p => p !== '');
 
       this.errors.apellidos = '';
@@ -72,7 +83,7 @@
         }
       }
 
-      const formatoCorrecto = palabras.map(p =>
+      const formatoCorrecto = palabras.map(p => 
         p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
       ).join(' ');
 
@@ -308,7 +319,7 @@
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
         placeholder="Ej: Pérez García (1 o 2 apellidos)"
         x-model="form.apellidos"
-        @input="formatearApellidos($event)"
+        @input="formatearApellidos"
         @blur="validarApellidos" 
       >
       <div 

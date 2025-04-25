@@ -9,23 +9,22 @@ from crud.pago_agua.show import MostrarDatos
 def crear(datos): #Se trae un diccionario
     """Funcion la cual es encarga de manejar todas las intancias correctas para introducir datos de pago de agua
     a la bd, ademas de que introduce y recibe el resultado de hacer la consulta a la bd para crear datos"""
-    
     conexion_db= Conexion('base_datos/data_base.db')
     crear_registro = Create()
     visualizador = MostrarDatos()
-   
     registro = Registro(datos["id_persona"],datos["tomas"], datos["anio"], datos["fecha_pago"], datos["cantidad"])
-    
-    #     # 3. Verificación completa de atributos
-    # print("\n🔍 Atributos del registro creado:")
-    # print(f"id_registro: {registro.id_registro} ({type(registro.id_registro)})")
-    # print(f"id_persona: {registro.id_persona} ({type(registro.id_persona)})")
-    # print(f"tomas_agua: {registro.tomas_agua} ({type(registro.tomas_agua)})")
-    # print(f"año: {registro.año} ({type(registro.año)})")
-    # print(f"fecha_pago: {registro.fecha_pago} ({type(registro.fecha_pago)})")
-    # print(f"cantidad: {registro.cantidad} ({type(registro.cantidad)})")
-    # print(f"estado_pago: {registro.estado_pago} ({type(registro.estado_pago)})")
-    # print(f"tarifa_pendiente: {registro.tarifa_pendiente} ({type(registro.tarifa_pendiente)})")
+    # Validacion para saber si no hay algun registro que se 
+    # repite mas de una vez por año
+    # VALIDACION LA CUAL IMPIDE QUE SE CREE MAS DE UN REGISTRO POR PERSONA AL AÑO
+    # NO AGREGADA AUN POR CONSIDERACIONES 
+    # lista_registros = visualizador.mostrar_todos_los_datos(conexion_db)
+    # cont = 0
+    # for dato in lista_registros:
+    #     if dato['id_persona'] == registro.id_persona and dato['año'] == registro.año:
+    #         cont += 1
+    #     if cont >= 2:
+    #         return False
+        
     resultado = crear_registro.agregar_registro(registro,conexion_db)
     
     conexion_db.cerrar_conexion()
