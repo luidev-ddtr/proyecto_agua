@@ -16,6 +16,21 @@ CORS(app, resources={
     }
 })
 
+@app.route("/app/loggin", methods=['POST'])
+def login():
+    contraseñas = ["mandho", "sgmandho", "elmandho"]
+    password = request.get_json()
+    
+    if not password:
+        return jsonify({'error':'No se recibio contraseña'}),400
+    
+    for pw in contraseñas:
+        if pw == password:
+            return jsonify({'Perfecto':"datos recibido correctamente"}), 200
+    
+    """Aqui deberia ver si flask ahora si servira todo el front o como se hara 
+    para que esta sea la funcion que retorne los estaticos ademas de otras cosas"""
+
 
 @app.route('/app/create_us', methods=['POST'])
 def registrar_persona():
