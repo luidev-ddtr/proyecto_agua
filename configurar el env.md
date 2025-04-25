@@ -113,3 +113,23 @@ git branch -m rama-core (NOMBRE ANTIGUO) rama-core-fix (NUEVO NOMBRE)
 Ahora puedes subir tu rama (ya sea con el nombre original o el nuevo) a GitHub/GitLab/Bitbucket:
 
 git push origin nombre-de-tu-rama-local
+
+
+# ACTUALIZAR TU RAMA LOCAL CON CAMBIOS DEL REPOSITORIO REMOTO 
+
+# Asegúrate de estar en main
+git checkout main
+
+# Descarga los últimos cambios del remoto (sin mergear)
+git fetch origin
+
+# Sincroniza tu main local con el remoto (¡cuidado con cambios locales no guardados!)
+git reset --hard origin/main
+
+
+
+
+# CREAR LAS NUEVAS RAMAS Y SINCRONIZARLAS EN REMOTO 
+
+# Primero se crea en local 
+git checkout -b build  
