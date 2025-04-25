@@ -4,7 +4,7 @@ from flask_cors import CORS  # Importa CORS
 
 #Seccion para recibir datos del formulario crear personas 
 from crud.personas.persona import menu_crear, menu_mostrar,menu_modificar
-from crud.pago_agua.menu import crear,mostrar 
+from crud.pago_agua.menu import crear,mostrar, modificar
 
 app = Flask(__name__)
 # Permite solo tu dominio frontend (http://localhost:4321)
@@ -171,45 +171,25 @@ def mostrar_pagos():
 
 
 #Se debate si este metodo al final si se implementara 
-@app.route("/app/buscar_pay", methods=["GET"])
-def busqueda_pagos():
-    search_term = request.args.get('q', '').lower().strip()
-    
-    if not search_term or len(search_term) < 3:
-        return jsonify({'results': [], 'message': 'Ingrese mínimo 3 caracteres'}), 200
+@app.route("/app/update_pay", methods=["POST"])
+def actualizar_registro_pago():
     try:
+        datos = request.get_json()
         
-        todos_los_datos = mostrar()
+        if not datos:
+            return jsonify({'error': 'No se recibieron datos JSON'}), 400
         
-        resultados = []
+        print(f"nombre del los datos: {datos}")
         
-        for registro in todos_los_datos:
-            campos_relevantes = [
-                registro['nombre_completo'].lower(),
-                registro.get('año', '').lower(),
-                registro['monto'].lower()
-            ]
-            
-            if any(search_term in campo for campo in campos_relevantes):
-                es_activo = registro.get('activo', '').lower() == 'activo'
-                
-                resultados.append({
-                    'id': registro['id'],
-                    'text': f"{registro['nombre_completo']} ({registro['id']})" + 
-                        (" ⚠ Inactivo" if not es_activo else ""),
-                    'data': registro,
-                    'selectable': es_activo,
-                    'reason': '' if es_activo else 'Usuario inactivo'
-                })
-        return jsonify({
-            'status': 'success',
-            'count': len(resultados),
-            'results': resultados
-        })
+        respuesta = modificar(datos)
+        
+        if respuesta:
+            return jsonify({'Perfecto':"datos actualizados correctamente"}), 200
+        
     except Exception as e:
-        return jsonify({
+                return jsonify({
             'status': 'error',
-            'message': f"Error en búsqueda: {str(e)}"
+            'message': str(e)
         }), 500
 
 
