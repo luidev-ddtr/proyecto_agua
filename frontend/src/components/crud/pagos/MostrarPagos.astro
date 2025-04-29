@@ -287,7 +287,7 @@
         // Métodos para obtener datos
         async fetchData() {
           try {
-            const response = await fetch('http://localhost:5000/app/read_pay');
+            const response = await fetch(`${window.API_ENDPOINT}/read_pay`);
             if (!response.ok) throw new Error('Error en la respuesta');
             const data = await response.json();
             this.personas = data.Perfecto;
@@ -420,7 +420,7 @@
           };
     
           try {
-            const response = await fetch('http://localhost:5000/app/update_pay', {
+            const response = await fetch(`${window.API_ENDPOINT}/update_pay`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -500,4 +500,4 @@
         }
       }));
     });
-    </script>
+  </script>

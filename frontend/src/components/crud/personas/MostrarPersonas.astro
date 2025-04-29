@@ -24,7 +24,7 @@
       isSubmitting: false,
       
       fetchData() {
-        fetch('http://localhost:5000/app/read_us')
+        fetch(`${window.API_ENDPOINT}/read_us`)
           .then(response => {
             if (!response.ok) throw new Error('Error en la respuesta');
             return response.json();
@@ -296,7 +296,7 @@ validarEstadoEspecial() {
   };
   
   try {
-    const response = await fetch('http://localhost:5000/app/update_us', {
+    const response = await fetch(`${window.API_ENDPOINT}/update_us`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

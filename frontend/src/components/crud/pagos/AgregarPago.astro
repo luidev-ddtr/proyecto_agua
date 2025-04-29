@@ -22,7 +22,7 @@
           this.hasSearched = true;
           
           try {
-            const response = await fetch(`http://localhost:5000/app/buscar_us?q=${encodeURIComponent(this.searchTerm)}`);
+            const response = await fetch(`${window.API_ENDPOINT}/buscar_us?q=${encodeURIComponent(this.searchTerm)}`);
             
             if (!response.ok) {
               throw new Error(`Error HTTP: ${response.status}`);
@@ -301,7 +301,7 @@ decrementarCantidad() {
              console.log('Datos a enviar:', formData);
              
              try {
-               const response = await fetch('http://localhost:5000/app/create_pay', {
+               const response = await fetch(`${window.API_ENDPOINT}/create_pay`, {
                  method: 'POST',
                  headers: {
                    'Content-Type': 'application/json',
