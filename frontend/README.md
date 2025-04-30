@@ -34,11 +34,12 @@ To learn more about the folder structure of an Astro project, refer to [our guid
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
+| Command                |               Action                             |
+| :--------------------- | :------------------------------------------------|
+| `pnpm install`         | Installs dependencies                            |
 | `pnpm dev`             | Starts local dev server at `localhost:4321`      |
 | `pnpm build`           | Build your production site to `./dist/`          |
+| `pnpm run deploy`      | Deploy the pagues auto, with gh-pagues           |
 | `pnpm preview`         | Preview your build locally, before deploying     |
 | `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `pnpm astro -- --help` | Get help using the Astro CLI                     |
@@ -46,3 +47,24 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+
+### PROBLEMAS Y SOLUCIONES A ESTOS
+
+primero con los estilos, se deben de crear siguiendo alguna guia que si funcione, 
+por ejemplo con vite la normal si funciona
+
+## RUTAS 
+
+Para simplificar mucho el proceso desde el inicio se debe de crear un .env el cual harcodee las rutas si no se tendran que crear manualmente
+
+## GH-PAGUES 
+
+este es un error  local del gh-pagues sin embargo es este, por defecto el motor que las genera ignora los archivos que empiezan con _astro por lo que tus estaticos no funcionan
+
+como se resuelve, agrega manualmente un archivo llamado .nojekyll   
+para desactiar esta funcion, con esto est arreglado
+
+## PAra mi del futuro, 
+
+LEE LA PUTA DOCUMENTACION 

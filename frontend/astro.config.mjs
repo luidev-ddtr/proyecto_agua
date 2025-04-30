@@ -8,5 +8,5 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
   site: 'https://luidev-ddtr.github.io',
-  base: '/proyecto_agua',
+  base: '/proyecto_agua/',
 });

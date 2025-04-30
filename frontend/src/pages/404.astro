@@ -1,6 +1,7 @@
 ---
 import FlechaBoton from "../components/FlechaBoton.astro";
 import Layout from "../layouts/Layout.astro";
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 ---
 
 <Layout>
@@ -15,7 +16,7 @@ import Layout from "../layouts/Layout.astro";
             
             <p class="text-lg text-purple-100 mb-8">Parece que has seguido un enlace incorrecto o la página aún no ha sido creada.</p>
             
-            <FlechaBoton texto="Volver al inicio" href="/" />
+            <FlechaBoton texto="Volver al inicio" href={`${BASE_URL}/`} />
         </section>
     </main>
 </Layout>
