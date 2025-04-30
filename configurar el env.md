@@ -69,7 +69,6 @@ Get-Content -Path "logs/app.log" -Wait  # Si guardas logs en archivo
 # COMO SUBIR TUS CAMBOS A GIT SIN MORIRI EN EL INTENTO  
 Opción 1: Agregar archivos modificados manualmente (recomendado para precisión)
 
-
 git add app.py
 git add tu_archivo_a.subir
 
@@ -113,3 +112,35 @@ git branch -m rama-core (NOMBRE ANTIGUO) rama-core-fix (NUEVO NOMBRE)
 Ahora puedes subir tu rama (ya sea con el nombre original o el nuevo) a GitHub/GitLab/Bitbucket:
 
 git push origin nombre-de-tu-rama-local
+
+
+# ACTUALIZAR TU RAMA LOCAL CON CAMBIOS DEL REPOSITORIO REMOTO 
+
+# Asegúrate de estar en main
+git checkout main
+
+# Descarga los últimos cambios del remoto (sin mergear)
+git fetch origin
+
+# Sincroniza tu main local con el remoto (¡cuidado con cambios locales no guardados!)
+git reset --hard origin/main
+
+
+
+
+# CREAR LAS NUEVAS RAMAS Y SINCRONIZARLAS EN REMOTO 
+
+# Primero se crea en local 
+git checkout -b NOMBRE-DE-TU-NUEA-RAMA
+
+
+# Hacer el commit y agregar los cambios cambios en local 
+
+git add .  # Agrega todos los cambios Usa mejor:         -u
+git commit -m "Mensaje descriptivo del cambio"
+
+
+
+# Sube tu rama a remoto con 
+
+git push -u origin nombre-de-la-rama

@@ -1,13 +1,15 @@
 ---
 import FlechaBoton from '../components/FlechaBoton.astro';
 import Layout from '../layouts/Layout.astro';
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 ---
 
 <Layout>
     <main class="min-h-screen relative">
+      <!-- Imagen de fondo corregida -->
       <div class="absolute inset-0 bg-cover bg-center z-0"
-      style="background-image: url('/puente1.webp');">
-      <div class="absolute inset-0 backdrop-brightness-50"></div>
+           style={`background-image: url('${BASE_URL}/puente1.webp')`}>
+        <div class="absolute inset-0 backdrop-brightness-50"></div>
       </div>
 
         <!-- Contenedor izquierdo (50% ancho) -->
@@ -21,11 +23,10 @@ import Layout from '../layouts/Layout.astro';
             </div>
       
             <!-- Botones (mitad del ancho del título y centrados) -->
-            <nav class="w-1/2 flex flex-col items-center space-y-6"> <!-- w-1/2 = 50% del contenedor padre (que ya es 50% del viewport) -->
-              <!-- Botón Usuarios -->
-
-              <FlechaBoton texto='usuarios' href='./usuarios' />
-              <FlechaBoton texto='pagos' href='./pagos'/>
+            <nav class="w-1/2 flex flex-col items-center space-y-6">
+              <!-- Botones corregidos -->
+              <FlechaBoton texto="usuarios" href={`${BASE_URL}/usuarios`} />
+              <FlechaBoton texto="pagos" href={`${BASE_URL}/pagos`} />
             </nav>
           </div>
         </div>

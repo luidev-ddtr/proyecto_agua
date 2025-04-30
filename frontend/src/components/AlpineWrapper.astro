@@ -1,40 +1,10 @@
 <script>
-  // 1. Importar como módulo
+  window.API_ENDPOINT = 'http://localhost:5000/app';
+  
   import Alpine from 'alpinejs';
   
-  // 2. Inicializar después de que el DOM cargue
-  document.addEventListener('DOMContentLoaded', () => {
-    window.Alpine = Alpine;
-    Alpine.start();
-    console.log('Alpine iniciado correctamente');
-  });
-</script>
-
-<!-- 1. Archivos Modificados
-Archivo	Cambios Realizados
-AlpineWrapper.astro	- Implementó inicialización con DOMContentLoaded
-- Uso de is:inline para evitar procesamiento de Astro
-- Verificación de window.Alpine
-tsconfig.json	- Añadió "types": ["@types/alpinejs"]
-- Habilitó "skipLibCheck": true
-- Configuró "moduleResolution": "node"
-2. Dependencias Instaladas
-bash
-Copy
-pnpm add alpinejs @types/alpinejs --save-dev
-🔧 Pasos Clave para el Funcionamiento
-Inicialización Segura de Alpine.js:
-
-astro
-Copy
-<script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
     window.Alpine = Alpine;
     Alpine.start();
   });
 </script>
-Por qué: Asegura que Alpine se cargue después del DOM.
-
-Tipos de TypeScript:
-
-Instalación de tipos no oficiales (@types/alpinejs) para evitar errores de TS. -->

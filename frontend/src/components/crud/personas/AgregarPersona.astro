@@ -254,8 +254,10 @@
       
       console.log('Datos a enviar:', formData);
       
+      //Modificado 
+
       try {
-        const response = await fetch('http://localhost:5000/app/create_us', {
+        const response = await fetch(`${window.API_ENDPOINT}/create_us`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -278,7 +280,7 @@
     }
   }"
   @submit.prevent="submitForm"
->
+  >
     <!-- Campo Nombre -->
     <div>
       <label for="nombre" class="block text-sm font-medium text-white">Nombre*</label>

@@ -2,15 +2,16 @@
 // src/pages/mostrar.astro
 import MostrarPagos from "../../../components/crud/pagos/MostrarPagos.astro";
 import Layout from "../../../layouts/Layout.astro";
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 ---
 
 <Layout>
   <main class="relative flex flex-col" style="min-height: 100vh;">
     <!-- Fondo -->
     <div 
-      class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
-      style="background-image: url('/fondoForm.webp')"
-    ></div>
+    class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+    style={`background-image: url('${BASE_URL}/fondoForm.webp')`}
+  ></div>
     
     <!-- Contenido -->
     <div class="flex flex-1 w-full pb-8">

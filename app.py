@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Permite solo tu dominio frontend (http://localhost:4321)
 CORS(app, resources={
     r"/app/*": {  # Permite TODAS las rutas que empiecen con /app/
-        "origins": "http://localhost:4321",
+        "origins": "https://luidev-ddtr.github.io",
         "methods": ["GET", "POST", "PUT", "OPTIONS"],  # Todos los métodos necesarios
         "allow_headers": ["Content-Type"]
     }
@@ -209,4 +209,4 @@ def actualizar_registro_pago():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

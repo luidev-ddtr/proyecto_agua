@@ -1,14 +1,16 @@
 ---
 import AgregarPersona from "../../../components/crud/personas/AgregarPersona.astro";
 import Layout from "../../../layouts/Layout.astro";
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 ---
+
 
 <Layout>
     <main class="flex h-screen">
-        <div
-        class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
-        style="background-image: url('/fondoForm.webp')" >
-      </div>
+      <div
+      class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+      style={`background-image: url('${BASE_URL}/fondoForm.webp')`}
+    ></div>
       
       </div>
         <div class="max-w-md w-full p-6 bg-[#035cb6] rounded-lg shadow-md">
