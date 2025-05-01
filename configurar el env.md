@@ -28,9 +28,7 @@ FLASK_ENV=development
 DATABASE_URL=sqlite:///base_datos/bd_mandho.db
 
 
-
 PROBAR LA APLICACION 
-
 
 
 # 1. Activar el entorno virtual (si usas uno)
@@ -115,6 +113,8 @@ git push origin nombre-de-tu-rama-local
 
 
 # ACTUALIZAR TU RAMA LOCAL CON CAMBIOS DEL REPOSITORIO REMOTO 
+Se tiene que hacer manualmente Por lo que se recomienda eliminar las ramas que ya no se ocupen
+
 
 # Asegúrate de estar en main
 git checkout main
@@ -123,9 +123,10 @@ git checkout main
 git fetch origin
 
 # Sincroniza tu main local con el remoto (¡cuidado con cambios locales no guardados!)
-git reset --hard origin/main
+git pull origin main         # Equivale a fetch + merge (menos agresivo).
 
 
+# AHOR TIENES QUE SINCRONIZAR TUS RAMAS LOCALES CON TU MAIN (YA ACTUALIZADO)
 
 
 # CREAR LAS NUEVAS RAMAS Y SINCRONIZARLAS EN REMOTO 
@@ -144,3 +145,11 @@ git commit -m "Mensaje descriptivo del cambio"
 # Sube tu rama a remoto con 
 
 git push -u origin nombre-de-la-rama
+
+
+
+## QUITAR ARCHIVOS QUE YA ESTAN EN ADD PERO AUN NO COMMITEADOS
+
+git reset HEAD #El nomre del archivo que quieras eliminar 
+
+

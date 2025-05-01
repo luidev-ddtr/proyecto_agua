@@ -16,12 +16,16 @@ CORS(app, resources={
     r"/api/*": {
         "origins": ["http://localhost:4321", "https://luidev-ddtr.github.io"],
         "methods": ["GET", "POST", "PUT", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True  # ¡Nuevo!
+
     },
     r"/auth/*": {
         "origins": ["http://localhost:4321", "https://luidev-ddtr.github.io"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Authorization", "Content-Type"]
+        "allow_headers": ["Authorization", "Content-Type"],
+        "supports_credentials": True  # ¡Nuevo!
+
     }
 })
 

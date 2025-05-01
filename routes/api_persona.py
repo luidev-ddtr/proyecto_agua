@@ -2,13 +2,16 @@ from flask import Blueprint, request, jsonify
 
 #Seccion para recibir datos del formulario crear personas 
 from crud.personas.persona import menu_crear, menu_mostrar,menu_modificar
-from crud.pago_agua.menu import crear,mostrar, modificar
+
+#Seguridad
+#from routes.security import token_required 
 
 
 # Crear Blueprint para autenticación
 api_persona_bp = Blueprint('api_personas', __name__, url_prefix='/api')
 
 @api_persona_bp.route('/create_us', methods=['POST'])
+
 def registrar_persona():
     try:
         # Obtener los datos JSON enviados desde el frontend
@@ -30,6 +33,7 @@ def registrar_persona():
         }), 500
 
 @api_persona_bp.route('/read_us', methods=['GET'])  # GET no debe llevar body
+
 def mostrar_persona():
     """
     Endpoint para obtener datos de personas.
@@ -51,6 +55,7 @@ def mostrar_persona():
 
 
 @api_persona_bp.route('/update_us', methods=['POST'])
+
 def actualizar_registro():
     datos = request.get_json()
     

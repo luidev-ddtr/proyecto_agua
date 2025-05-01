@@ -3,12 +3,16 @@ from flask import Blueprint, request, jsonify
 from crud.personas.persona import menu_mostrar
 from crud.pago_agua.menu import crear,mostrar, modificar
 
+#Seguridad
+#from routes.security import token_required
+
 
 # Crear Blueprint para autenticación
 api_pago_bp = Blueprint('api_pagos', __name__, url_prefix='/api')
 
 
 @api_pago_bp.route("/buscar_us", methods=["GET"])
+
 def busqueda_tiempo_real():
     search_term = request.args.get('q', '').lower().strip()
     if not search_term or len(search_term) < 3:
@@ -52,6 +56,7 @@ def busqueda_tiempo_real():
 
 
 @api_pago_bp.route('/create_pay', methods=['POST'])
+
 def registrar_pago():
     try:
         # Obtener los datos JSON enviados desde el frontend
@@ -78,6 +83,7 @@ def registrar_pago():
         
 
 @api_pago_bp.route('/read_pay', methods=['GET'])  # GET no debe llevar body
+
 def mostrar_pagos():
     """
     Endpoint para obtener datos de pagos.
@@ -97,6 +103,7 @@ def mostrar_pagos():
 
 #Se debate si este metodo al final si se implementara 
 @api_pago_bp.route("/update_pay", methods=["POST"])
+
 def actualizar_registro_pago():
     try:
         datos = request.get_json()

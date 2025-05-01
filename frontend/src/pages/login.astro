@@ -154,6 +154,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 const response = await fetch(`${window.AUTH_ENDPOINT}/login`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
