@@ -45,3 +45,17 @@ You need create a virtual ent (env), for work with flask
   ├── // requirements.txt       # Dependencias No se ocupa
   └── app.py                 # Punto de entrada principal
 
+
+## Generar una clave secreta SECRET_KEY
+
+### Reglas de oro
+
+Nunca la compartas: No la subas a GitHub o chats públicos.
+
+Usa una por proyecto: No reutilices claves.
+
+En producción:
+
+Génerala con openssl o secrets.
+
+Almacénala en variables de entorno del servidor (no en el código).

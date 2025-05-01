@@ -1,0 +1,29 @@
+---           
+import "../styles/global.css";  
+import AlpineWrapper from '../components/AlpineWrapper.astro';                  
+---   
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>SG EL MANDO</title>
+		<AlpineWrapper />
+	</head>
+	<body>
+		<div> 
+			<slot />
+		</div>
+	</body>
+</html>
+
+<style>
+	html,
+	body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+	}
+</style>

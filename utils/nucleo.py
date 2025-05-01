@@ -34,7 +34,6 @@ class Conexion:
         except sqlite3.Error as e:
             print(f"Error al enviar conexiones: {e}")
             raise
-
     def cerrar_conexion(self):
         """
         Cierra la conexión y el cursor.
