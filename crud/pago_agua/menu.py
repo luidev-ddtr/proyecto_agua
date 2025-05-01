@@ -1,18 +1,23 @@
-import sqlite3
+import os
+from dotenv import load_dotenv
 from utils.nucleo import Conexion
 from models.pago_agua import Registro
 from crud.pago_agua.create import Create
 from crud.pago_agua.modificar import Modificate_register
 from crud.pago_agua.show import MostrarDatos
 
+#SE CARGAN LAS VARIABLES DE ENTORNO PARA SER USADAS
+load_dotenv()  # Carga las variables del .env
+
 
 def crear(datos): #Se trae un diccionario
     """Funcion la cual es encarga de manejar todas las intancias correctas para introducir datos de pago de agua
     a la bd, ademas de que introduce y recibe el resultado de hacer la consulta a la bd para crear datos"""
-    conexion_db= Conexion('base_datos/data_base.db')
+    conexion_db= Conexion(os.getenv('DATABASE_PATH'))
     crear_registro = Create()
     visualizador = MostrarDatos()
     registro = Registro(datos["id_persona"],datos["tomas"], datos["anio"], datos["fecha_pago"], datos["cantidad"])
+    
     # Validacion para saber si no hay algun registro que se 
     # repite mas de una vez por año
     # VALIDACION LA CUAL IMPIDE QUE SE CREE MAS DE UN REGISTRO POR PERSONA AL AÑO
@@ -40,7 +45,7 @@ def mostrar():
     datos al edpoint"""
     
     visualizador = MostrarDatos()
-    conexion_db= Conexion('base_datos/data_base.db')
+    conexion_db= Conexion(os.getenv('DATABASE_PATH'))
     
     datos = visualizador.mostrar_todos_los_datos(conexion_db)
     
@@ -53,7 +58,7 @@ def mostrar():
 def modificar(datos):
     
     #Funcion aun no funciona bien 
-    conexion_db= Conexion('base_datos/data_base.db')
+    conexion_db= Conexion(os.getenv('DATABASE_PATH'))
     md_registro = Modificate_register()
     visuali = MostrarDatos()
     print("Banderas 1")

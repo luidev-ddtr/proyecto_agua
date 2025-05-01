@@ -1,0 +1,182 @@
+---
+import LoginLayout from "../layouts/LoginLayout.astro";
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
+---
+<LoginLayout>
+    <main class="h-screen w-full overflow-hidden relative">
+        <!-- Fondo de imagen -->
+        <div 
+            class="absolute inset-0 bg-cover bg-center z-0 w-4/5" 
+            style={`background-image: url('${BASE_URL}/fondoForm.webp');`}>
+        </div> 
+
+        <section class="absolute right-0 w-1/3 h-full flex flex-col"
+         style="background-image: linear-gradient(90deg, rgba(43,110,127,0) 0%, rgba(44, 122, 126,1) 20%, rgba(15,45,74,1) 100%);">
+        <!-- Encabezado -->
+            <div class="h-1/5 flex items-end pb-4 justify-end pr-12"> <!-- Ajustado a la derecha -->
+                <h1 class="text-white text-sm font-bold flex items-center">
+                    SG EL MANDO 
+                    <img 
+                        src={`${BASE_URL}/logo.svg`} 
+                        alt="Logo" 
+                        class="h-[58px] w-auto ml-2" 
+                    />
+                </h1>
+            </div>
+
+<!-- Contenedor del formulario -->
+<div class="h-3/5 flex items-center justify-start pl-8"> <!-- Cambiado a justify-start y pl-8 -->
+    <div class="w-full max-w-md bg-[#2b6e7f] rounded-xl p-8 shadow-lg shadow-blue-900/30 mr-auto"> <!-- mr-auto para alinear a izquierda -->
+        <form 
+            x-data="loginForm()"
+            @submit.prevent="handleSubmit"
+            class="space-y-6"
+        >
+            <h2 class="text-2xl font-bold text-white text-center">INICIO DE SESIÓN</h2>
+            
+            <!-- Campo Usuario -->
+            <div>
+                <label for="usuario" class="block text-sm font-medium text-white mb-1 px-3 py-1">Usuario*</label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        required
+                        class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/90 hover:bg-white transition-colors duration-200 shadow-md"
+                        placeholder="Ingrese su usuario"
+                        x-model="form.user"
+                        @input="validateUser"
+                    >
+                    <div 
+                        x-show="errors.user"
+                        x-transition
+                        class="mt-1 text-amber-200 text-xs flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span x-text="errors.user"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campo Contraseña -->
+            <div>
+                <label for="password" class="block text-sm font-medium text-white mb-1 px-3 py-1">Contraseña*</label>
+                <div class="relative">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/90 hover:bg-white transition-colors duration-200 shadow-md" 
+                        placeholder="Ingrese su contraseña"
+                        x-model="form.password"
+                        @input="validatePassword"
+                    >
+                    <div 
+                        x-show="errors.password"
+                        x-transition
+                        class="mt-1 text-amber-200 text-xs flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span x-text="errors.password"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón de Enviar -->
+            <div class="flex justify-end">
+                <button
+                    type="submit"
+                    class="w-1/2 py-3 px-6 rounded-lg shadow-md text-sm font-bold tracking-wider text-gray-900 bg-white hover:bg-[#0d8a7a] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                    :disabled="isSubmitting"
+                    :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+                >
+                    <span x-show="!isSubmitting" class="font-bold">INGRESAR</span>
+                    <span x-show="isSubmitting" class="flex items-center justify-center font-bold">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Autenticando...
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+            <!-- Espacio inferior -->
+            <div class="h-1/5"></div>
+        </section>
+    </main>
+</LoginLayout>
+
+<script is:inline>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('loginForm', () => ({
+        form: {
+            user: '',
+            password: ''
+        },
+        errors: {
+            user: '',
+            password: ''
+        },
+        isSubmitting: false,
+
+        validateUser() {
+            if (this.form.user.length < 3) {
+                this.errors.user = 'Mínimo 3 caracteres';
+                return false;
+            }
+            this.errors.user = '';
+            return true;
+        },
+
+        validatePassword() {
+            if (this.form.password.length < 6) {
+                this.errors.password = 'Mínimo 6 caracteres';
+                return false;
+            }
+            this.errors.password = '';
+            return true;
+        },
+
+        async handleSubmit() {
+            if (!this.validateUser() | !this.validatePassword()) return;
+
+            this.isSubmitting = true;
+            
+            try {
+                const response = await fetch(`${window.AUTH_ENDPOINT}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user: this.form.user,
+                        password: this.form.password
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Redirección o manejo de sesión exitosa
+                    window.location.href =  `${window.BASE_URL}`;
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor');
+            } finally {
+                this.isSubmitting = false;
+            }
+        }
+    }));
+});
+</script>

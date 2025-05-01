@@ -1,5 +1,7 @@
 #Crud unificado de persona
+import os
 import sqlite3
+from dotenv import load_dotenv
 from models.clase_abstracta import BaseDatos
 from models.personas import Persona
 from models.estado_especial import TablaEstado
@@ -412,8 +414,12 @@ class MostrarDatos:
         for dato in tabla:
             print(dato)
 
+#SE CARGAN LAS VARIABLES DE ENTORNO PARA SER USADAS
+load_dotenv()  # Carga las variables del .env
+
+
 def menu_mostrar():
-    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) 
     visualizador = MostrarDatos()
     
     datos_bd = visualizador.mostrar_todos_los_datos(conexion_bd)
@@ -423,7 +429,7 @@ def menu_mostrar():
     return datos_bd
 
 def obtener_registro(indice):
-    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
     
     persona = tabla_personas.obtener_datos(indice,Persona,conexion_bd)
@@ -443,7 +449,7 @@ def menu_modificar(datos):
         bool: True si la actualización fue exitosa, False si hubo error
 """
     # Conexión a la base de datos
-    conexion_bd = Conexion('base_datos/data_base.db')
+    conexion_bd = Conexion(os.getenv('DATABASE_PATH'))
     tabla_personas = TablaPersona()
     # Procesamiento de nombre y apellidos
     partes_nombre = datos["nombre_completo"].split()
@@ -481,7 +487,7 @@ def asignar_estado(estado):
 
 def menu_crear(lista_datos):
     print("Inicializando componentes...")
-    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
     visualizador = MostrarDatos()
     #persona = Persona("juan", "Torres Morales", 2, "Centro", 0, "2002-02-19")
