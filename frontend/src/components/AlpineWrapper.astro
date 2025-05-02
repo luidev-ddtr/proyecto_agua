@@ -2,11 +2,33 @@
   window.API_ENDPOINT = 'http://localhost:5000/api';
   window.AUTH_ENDPOINT = 'http://localhost:5000/auth';
   window.BASE_URL = "http://localhost:4321/proyecto_agua/";
-  
-  import Alpine from 'alpinejs';
-  
+
+  // Función para verificar autenticación
+  async function checkAuth() {
+    try {
+      const response = await fetch(`${window.AUTH_ENDPOINT}/validate-token`, {
+        credentials: 'include' 
+      });
+      
+      if (!response.ok) {
+        // Si no está autenticado, redirige al login (excepto si ya está en /login)
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = `${window.BASE_URL}login`;
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando autenticación:', error);
+    }
+  }
+
+  // Verificar al cargar la página y cada 5 minutos
   document.addEventListener('DOMContentLoaded', () => {
-    window.Alpine = Alpine;
-    Alpine.start();
+    checkAuth();
+    setInterval(checkAuth, 300000); // 300000 ms = 5 minutos
   });
+
+  // Alpine.js (tu código existente)
+  import Alpine from 'alpinejs';
+  window.Alpine = Alpine;
+  Alpine.start();
 </script>
