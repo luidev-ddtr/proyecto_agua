@@ -72,14 +72,4 @@ LEE LA PUTA DOCUMENTACION
 
 
 
-## Paginas para cuando se haga build
-
-gpt
-https://chatgpt.com/c/68118209-0aa8-8002-9755-edb8e7ce9f1b
-
-flaks como construir - avazar siguiente apartado 
-https://flask-es.readthedocs.io/quickstart/#sessions
-
-instalacion 
-https://werkzeug.palletsprojects.com/en/stable/installation/#install-werkzeug
 

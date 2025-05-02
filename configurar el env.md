@@ -84,7 +84,7 @@ git commit -m "Tu mensaje descriptivo del commit"
 
 # por ultimo usas git push para subir los cambios 
 
-
+git push origin nombre-de-tu-rama
 
 
 
