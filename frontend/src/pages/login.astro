@@ -154,28 +154,21 @@ document.addEventListener('alpine:init', () => {
             try {
                 const response = await fetch(`${window.AUTH_ENDPOINT}/login`, {
                     method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user: this.form.user,
-                        password: this.form.password
-                    })
+                    credentials: 'include', // ¡Necesario para cookies!
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.form)
                 });
-                const data = await response.json();
                 
                 if (response.ok) {
-                    // Redirección o manejo de sesión exitosa
-                    window.location.href =  `${window.BASE_URL}`;
+                    // El token está en las cookies, no necesitas localStorage
+                    window.location.href = `${window.BASE_URL}`;
                 } else {
-                    alert(data.message);
+                    const data = await response.json();
+                    alert(data.error || 'Error en login');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error al conectar con el servidor');
-            } finally {
-                this.isSubmitting = false;
             }
         }
     }));

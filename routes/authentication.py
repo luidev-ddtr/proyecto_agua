@@ -9,12 +9,13 @@ load_dotenv()
 # Crear Blueprint para autenticación
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+#CamBios para produccion camviar las rutas de local a el servidor externo 
 # 🔥🔥🔥 Añade este decorador JUSTO AQUÍ (después de crear el blueprint) 🔥🔥🔥
 @auth_bp.after_request
 def after_auth_request(response):
     """Añade headers CORS necesarios para todas las respuestas de /auth"""
     response.headers.add('Access-Control-Allow-Credentials', 'true')
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:4321')
+    response.headers.add('Access-Control-Allow-Origin', os.getenv('URL_FRONTEND')) #AQUI  
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     return response
 
@@ -27,6 +28,7 @@ def login():
             raise ValueError("CREDENCIALS no está definido en .env")
             
         credencials = json.loads(credencials_json.strip("'"))
+        
         # 2. Verifica JSON recibido
         data = request.get_json()
         if not data:
@@ -45,15 +47,37 @@ def login():
             response = jsonify({'status': 'success'})
             response.set_cookie(
                 'auth_token',
-                token,
-                httponly=True,
-                secure=False,
-                samesite='Lax',
-                max_age=7200
+                    token,
+                    httponly=True,
+                    secure=True,                  # Solo HTTPS (obligatorio en producción)
+                    samesite='None',              # Permite cookies cross-origin
+                    max_age=7200,
+                    domain='.github.io'           # Dominio padre para GitHub Pages
             )
             return response
             
-        return jsonify({'error': 'Credenciales inválidas'}), 401
+        return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
+#Configuracion de las cookies para produccion 
+# response.set_cookie(
+#     'auth_token',
+#     token,
+#     httponly=True,
+#     secure=True,                  # Solo HTTPS (obligatorio en producción)
+#     samesite='None',              # Permite cookies cross-origin
+#     max_age=7200,
+#     domain='.github.io'           # Dominio padre para GitHub Pages
+# )
+
+# Para produccion 
+#             response.set_cookie(
+#                 'auth_token',
+#                 token,
+#                 httponly=True,
+#                 secure=False,
+#                 samesite='Lax',
+#                 max_age=7200
+#             )
+
 
     except json.JSONDecodeError as e:
         print(f"ERROR - Fallo al parsear CREDENCIALS: {str(e)}")
@@ -68,7 +92,7 @@ def login():
 def validate_token():
     token = request.cookies.get('auth_token')
     if not token:
-        return jsonify({'valid': False}), 401
+        return jsonify({'valid': False, 'error': 'No hay token'}), 401
     try:
         valide_token(token)  # Usa tu función existente
         return jsonify({'valid': True}), 200
@@ -87,6 +111,6 @@ def cerrar_sesion():
     response.delete_cookie(
         'auth_token',
         path='/',  # Asegura que se elimine en todas las rutas
-        domain='localhost'  # Cambia a tu dominio en producción
+        domain= os.getenv('DOMAIN') #AQIII
     )
     return response
