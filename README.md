@@ -71,3 +71,9 @@ https://flask-es.readthedocs.io/quickstart/#sessions
 
 instalacion 
 https://werkzeug.palletsprojects.com/en/stable/installation/#install-werkzeug
+
+
+
+## Funciones asincronas con python 
+
+https://flask-es.readthedocs.io/async-await/
