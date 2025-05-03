@@ -1,24 +1,18 @@
-<!DOCTYPE html><html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/logo.svg"><meta name="generator" content="Astro v5.6.1"><title>SG EL MANDO</title><script type="module" src="/proyecto_agua/_astro/AlpineWrapper.astro_astro_type_script_index_0_lang.BeiDZ2TH.js"></script><link rel="stylesheet" href="/proyecto_agua/_astro/RegistroSeccion.D8GiRfur.css">
+<!DOCTYPE html><html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/logo.svg"><meta name="generator" content="Astro v5.6.1"><title>SG EL MANDO</title><script type="module" src="/proyecto_agua/_astro/AlpineWrapper.astro_astro_type_script_index_0_lang.Dx_iM7pM.js"></script><link rel="stylesheet" href="/proyecto_agua/_astro/RegistroSeccion.D8GiRfur.css">
 <style>.min-w-full.bg-white tbody tr.bg-yellow-100{background-color:#fef9c3!important;border-left:4px solid #f59e0b!important}.min-w-full.bg-white tbody tr.bg-yellow-100 td{color:#1e3a8a!important;font-weight:500!important}.min-w-full.bg-white tbody tr.bg-yellow-100:hover{background-color:#fef08a!important}
 html,body{margin:0;width:100%;height:100%}
 </style></head> <body data-astro-cid-sckkx6r4> <div data-astro-cid-sckkx6r4> <!-- Este div sera el que dara estilos al contenedor general --> <header class="bg-black text-white flex items-center h-[60px]"> <!-- Logo (opcionalmente 1/2 o menos para balancear con el nav) --> <div class="w-1/3 flex justify-center"> <img src="/proyecto_agua/logo.svg" alt="Logo" class="h-[58px] w-auto"> </div> <nav class="w-2/3 flex justify-end space-x-6 pr-6"> <a href="/proyecto_agua/" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">Inicio</a> <a href="/proyecto_agua/crud/RegistroSeccion" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">Registro</a> <a href="/proyecto_agua/usuarios" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">Usuarios</a> <a href="/proyecto_agua/pagos" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">Pagos</a> <a href="/proyecto_agua/ayuda" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">Ayuda</a> <div x-data="{ logout: async function() {  <!-- Define la función directamente en x-data -->
     try {
-        const response = await fetch(`${window.AUTH_ENDPOINT}/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            window.location.href = `${window.BASE_URL}login`;
-        } else {
+        window.location.href = `${window.BASE_URL}login`;
+        }
+    catch (error) {
             console.error('Error al cerrar sesión');
         }
-    } catch (error) {
-        console.error('Error de red:', error);
     }
-}}"> <!-- Vincula el evento click al método logout() --> <button @click="logout()" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">
+}
+"> <!-- Vincula el evento click al método logout() --> <button @click="logout()" class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">
 Cerrar Sesión
-</button> </div> </nav> </header> <div class="h-[2px] bg-white w-full"></div>  <main class="relative flex flex-col" style="min-height: 100vh;"> <!-- Fondo --> <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10" style="background-image: url('/proyecto_agua/fondoForm.webp')"></div> <!-- Contenido --> <div class="flex flex-1 w-full pb-8"> <div class="w-1/12"></div> <div class="w-10/12 flex flex-col"> <!-- Barra de Búsqueda --> <div class="w-full p-4 bg-blue-700 rounded-t-lg sticky top-0 z-10"> <div x-data="searchBar()" x-init="initObserver" class="relative"> <div class="flex items-center gap-2"> <input type="text" x-model="searchTerm" @input.debounce.300ms="highlightMatches" placeholder="Buscar en todos los campos..." class="flex-1 p-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"> <button x-show="searchTerm" @click="searchTerm = ''; clearHighlight();" class="p-2 text-gray-600 hover:text-gray-800 bg-white rounded">
+</button> </div>  </nav> </header> <div class="h-[2px] bg-white w-full"></div>  <main class="relative flex flex-col" style="min-height: 100vh;"> <!-- Fondo --> <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10" style="background-image: url('/proyecto_agua/fondoForm.webp')"></div> <!-- Contenido --> <div class="flex flex-1 w-full pb-8"> <div class="w-1/12"></div> <div class="w-10/12 flex flex-col"> <!-- Barra de Búsqueda --> <div class="w-full p-4 bg-blue-700 rounded-t-lg sticky top-0 z-10"> <div x-data="searchBar()" x-init="initObserver" class="relative"> <div class="flex items-center gap-2"> <input type="text" x-model="searchTerm" @input.debounce.300ms="highlightMatches" placeholder="Buscar en todos los campos..." class="flex-1 p-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"> <button x-show="searchTerm" @click="searchTerm = ''; clearHighlight();" class="p-2 text-gray-600 hover:text-gray-800 bg-white rounded">
 ✕ Limpiar
 </button> </div> <div x-show="searchTerm.length > 1" class="text-sm text-white mt-1 flex justify-between"> <span> <span x-text="document.querySelectorAll('.min-w-full.bg-white tbody tr.bg-yellow-100').length"></span>
 resultados
