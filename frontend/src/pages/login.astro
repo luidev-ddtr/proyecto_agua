@@ -150,25 +150,16 @@ document.addEventListener('alpine:init', () => {
             if (!this.validateUser() | !this.validatePassword()) return;
 
             this.isSubmitting = true;
+
+            pass = ["usuario1", "admin123"]
             
-            try {
-                const response = await fetch(`${window.AUTH_ENDPOINT}/login`, {
-                    method: 'POST',
-                    credentials: 'include', // ¡Necesario para cookies!
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.form)
-                });
-                
-                if (response.ok) {
-                    // El token está en las cookies, no necesitas localStorage
-                    window.location.href = `${window.BASE_URL}`;
-                } else {
-                    const data = await response.json();
-                    alert(data.error || 'Error en login');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al conectar con el servidor');
+            paso = pass[0] == this.form.user && pass[1] == this.form.password
+            
+            if (paso === true) {
+                // El token está en las cookies, no necesitas localStorage
+                window.location.href = `${window.BASE_URL}`;
+            } else {
+                alert("Usuario o contraseña incorrecto")
             }
         }
     }));

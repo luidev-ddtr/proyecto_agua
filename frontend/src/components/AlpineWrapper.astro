@@ -6,36 +6,36 @@
   //window.BASE_URL = "http://localhost:4321/proyecto_agua/";
   // Función para verificar autenticación
 
-    async function checkAuth() {
-    try {
-        const response = await fetch(`${window.AUTH_ENDPOINT}/validate-token`, {
-            method: 'GET',
-            credentials: 'include', // ¡Envía cookies automáticamente!
-        });
+//     async function checkAuth() {
+//     try {
+//         const response = await fetch(`${window.AUTH_ENDPOINT}/validate-token`, {
+//             method: 'GET',
+//             credentials: 'include', // ¡Envía cookies automáticamente!
+//         });
 
-        if (!response.ok) {
-            // Redirige al login si el token es inválido o no hay cookie
-            if (!window.location.pathname.includes('/login')) {
-                window.location.href = `${window.BASE_URL}login`;
-            }
-            return;
-        }
+//         if (!response.ok) {
+//             // Redirige al login si el token es inválido o no hay cookie
+//             if (!window.location.pathname.includes('/login')) {
+//                 window.location.href = `${window.BASE_URL}login`;
+//             }
+//             return;
+//         }
 
-        // Si la respuesta es exitosa, el usuario está autenticado
-        console.log("Usuario autenticado (cookie válida)");
+//         // Si la respuesta es exitosa, el usuario está autenticado
+//         console.log("Usuario autenticado (cookie válida)");
 
-    } catch (error) {
-        console.error('Error verificando autenticación:', error);
-        if (!window.location.pathname.includes('/login')) {
-            window.location.href = `${window.BASE_URL}login`;
-        }
-    }
-}
-  // Verificar al cargar la página y cada 5 minutos
-  document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-    setInterval(checkAuth, 300000); // 300000 ms = 5 minutos
-  });
+//     } catch (error) {
+//         console.error('Error verificando autenticación:', error);
+//         if (!window.location.pathname.includes('/login')) {
+//             window.location.href = `${window.BASE_URL}login`;
+//         }
+//     }
+// }
+//   // Verificar al cargar la página y cada 5 minutos
+//   document.addEventListener('DOMContentLoaded', () => {
+//     checkAuth();
+//     setInterval(checkAuth, 300000); // 300000 ms = 5 minutos
+//   });
 
   // Alpine.js (tu código existente)
   import Alpine from 'alpinejs';

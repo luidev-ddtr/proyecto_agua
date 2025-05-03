@@ -1,19 +1,13 @@
 <div x-data="{ logout: async function() {  <!-- Define la función directamente en x-data -->
     try {
-        const response = await fetch(`${window.AUTH_ENDPOINT}/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            window.location.href = `${window.BASE_URL}login`;
-        } else {
+        window.location.href = `${window.BASE_URL}login`;
+        }
+    catch (error) {
             console.error('Error al cerrar sesión');
         }
-    } catch (error) {
-        console.error('Error de red:', error);
     }
-}}">
+}
+">
     <!-- Vincula el evento click al método logout() -->
     <button 
         @click="logout()" 
@@ -22,3 +16,7 @@
         Cerrar Sesión
     </button>
 </div>
+
+<script>
+
+</script>

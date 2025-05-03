@@ -4,12 +4,12 @@ from flask_cors import CORS  # Importa CORS
 #HARCODEAR LAS URL
 import os
 
-from routes.authentication import auth_bp
+#from routes.authentication import auth_bp
 from routes.api_persona import api_persona_bp
 from routes.api_pagos import api_pago_bp
 
 app = Flask(__name__)
-app.register_blueprint(auth_bp)  # Ahora las rutas estarán bajo /auth
+#app.register_blueprint(auth_bp)  # Ahora las rutas estarán bajo /auth
 app.register_blueprint(api_pago_bp) #rutas para el crud y la 
 app.register_blueprint(api_persona_bp)
 
