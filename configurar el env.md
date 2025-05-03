@@ -127,7 +127,8 @@ git pull origin main         # Equivale a fetch + merge (menos agresivo).
 
 
 # AHOR TIENES QUE SINCRONIZAR TUS RAMAS LOCALES CON TU MAIN (YA ACTUALIZADO)
-
+git merge main        # Fusiona los cambios de main en tu-rama
+(con este comando se actualizaran tu rama)
 
 # CREAR LAS NUEVAS RAMAS Y SINCRONIZARLAS EN REMOTO 
 
