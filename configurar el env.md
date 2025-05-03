@@ -63,6 +63,13 @@ python -m pytest -v
 # Monitorear logs en tiempo real
 Get-Content -Path "logs/app.log" -Wait  # Si guardas logs en archivo
 
+## Inicializar tu git 
+git inint
+
+# Git remote
+Traer el link de tu repositorio
+
+https//:link-de-tu-repo.com
 
 # COMO SUBIR TUS CAMBOS A GIT SIN MORIRI EN EL INTENTO  
 Opción 1: Agregar archivos modificados manualmente (recomendado para precisión)

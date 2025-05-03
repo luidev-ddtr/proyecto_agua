@@ -29,5 +29,12 @@ CORS(app, resources={
     }
 })
 
+app.config.update(
+    SESSION_COOKIE_SECURE=True,       # Asegura que las cookies solo se envíen a través de HTTPS
+    SESSION_COOKIE_HTTPONLY=True,     # Previene el acceso a las cookies desde JavaScript
+    SESSION_COOKIE_SAMESITE='Lax'     # Protege contra ataques CSRF
+)
+
+
 if __name__ == '__main__':
     app.run(debug=False)

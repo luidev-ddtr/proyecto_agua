@@ -1,3 +1,5 @@
+--chema de referencia 
+
 CREATE TABLE persona (
     id TEXT PRIMARY KEY,
     nombre TEXT NOT NULL,
