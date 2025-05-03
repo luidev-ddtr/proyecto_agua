@@ -62,3 +62,4 @@ Aunque ciertamente esta en ingles y es dificil encontrar el problema o la herram
 ## 1.9 ESTAS SERIAN LAS BUENAS PRACTICAS PARA TENER UN BUEN CODIGO LISTO PARA PRODUCCION 
 
 ## 2 Vamos a produccion !!
+
