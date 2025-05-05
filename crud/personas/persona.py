@@ -176,16 +176,16 @@ class TablaPersona(BaseDatos):
     def modificar_dato(self, objeto, conexion_db):
         """
         Modifica los datos editables de una persona en la base de datos.
-        
+
         Args:
             objeto (Persona): Instancia de Persona con la información actualizada
             conexion_db (Conexion): Instancia de la clase Conexion
-        
+
         Returns:
             bool: True si la actualización fue exitosa, False si hubo error
         """
         conexion, cursor = conexion_db.conexion()
-        
+
         print("Imprimiendo valor persona")
         print(objeto.nombre)
         print(objeto.apellidos)
@@ -193,18 +193,18 @@ class TablaPersona(BaseDatos):
         print(objeto.estudia)
         print(objeto.activo)
         print(objeto.id_persona)
-        
+
         # Consulta SQL con campos editables (incluyendo activo)
         consulta_sql = """
-            UPDATE persona 
-            SET nombre = ?, 
-                apellidos = ?, 
-                estado_especial = ?, 
+            UPDATE persona
+            SET nombre = ?,
+                apellidos = ?,
+                estado_especial = ?,
                 estudia = ?,
                 activo = ?
             WHERE id = ?
         """
-        
+
         # Valores para la consulta (campos editables + ID para WHERE)
         valores = (
             objeto.nombre,
@@ -214,15 +214,15 @@ class TablaPersona(BaseDatos):
             objeto.activo,  # Incluido según tu comentario
             objeto.id_persona      # Solo para identificar el registro a actualizar
         )
-        
+
         # Ejecutar la consulta
         cursor.execute(consulta_sql, valores)
-        
+
         # Verificar si se actualizó algún registro
         if cursor.rowcount == 0:
             print(f"⚠️ No se actualizó el registro ID: {objeto.id_persona}. Verifica si existe.")
             return False
-        
+
         conexion_db.guardar_cambios()
         print(f"✅ Registro ID: {objeto.id_persona} actualizado correctamente.")
         return True
@@ -245,40 +245,40 @@ class TablaPersona(BaseDatos):
         registros_eliminados = cursor.rowcount
         conexion_db.guardar_cambios()
         return registros_eliminados
-    
+
     def buscar_nombre(self, busqueda, conexion_bd):
         """
         Método que ejecuta la consulta SQL real
-        
+
         Args:
             busqueda (str): Término a buscar
             conexion_bd (Conexion): Objeto de conexión
-            
+
         Returns:
             list: Resultados formateados
         """
         conn, cursor = conexion_bd.conectar()
-        
+
         # Dividir términos de búsqueda
         terminos = [t.strip() for t in busqueda.split() if t.strip()]
-        
+
         if not terminos:
             return []
-        
+
         # Construir consulta segura
         query = """
-            SELECT id, nombre 
-            FROM personas 
+            SELECT id, nombre
+            FROM personas
             WHERE {}
             LIMIT 20
         """.format(" OR ".join(["nombre LIKE ?"] * len(terminos)))
-        
+
         # Parámetros con comodines para cada término
         params = [f"%{t}%" for t in terminos]
-        
+
         cursor.execute(query, params)
         rows = cursor.fetchall()
-        
+
         # Formatear resultados
         return [{"id": row[0], "nombre": row[1]} for row in rows]
 
@@ -364,7 +364,7 @@ class MostrarDatos:
         for registro in registros:
             # Obtener estado especial para cada registro
             nombre_estado = estado.obtener_estado(registro[3], conexion_db)
-            
+
             # Estructurar datos
             datos_persona = {
                 'id': registro[0],
@@ -419,21 +419,21 @@ load_dotenv()  # Carga las variables del .env
 
 
 def menu_mostrar():
-    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) 
+    conexion_bd = Conexion(os.getenv('DATABASE_PATH'))
     visualizador = MostrarDatos()
-    
+
     datos_bd = visualizador.mostrar_todos_los_datos(conexion_bd)
-    
+
     conexion_bd.cerrar_conexion()
-    
+
     return datos_bd
 
 def obtener_registro(indice):
     conexion_bd = Conexion(os.getenv('DATABASE_PATH')) #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
-    
+
     persona = tabla_personas.obtener_datos(indice,Persona,conexion_bd)
-    
+
     conexion_bd.cerrar_conexion()
     return persona
 
@@ -441,10 +441,10 @@ def obtener_registro(indice):
 def menu_modificar(datos):
     """
     Función que se encarga de modificar un registro.
-    
+
     Args:
         datos (dict): JSON que viene desde el frontend con los datos nuevos y el ID
-    
+
     Returns:
         bool: True si la actualización fue exitosa, False si hubo error
 """
@@ -453,7 +453,7 @@ def menu_modificar(datos):
     tabla_personas = TablaPersona()
     # Procesamiento de nombre y apellidos
     partes_nombre = datos["nombre_completo"].split()
-    
+
     # Crear objeto Persona con los datos actualizados
     persona = Persona(
         nombre=partes_nombre[0],
@@ -464,15 +464,15 @@ def menu_modificar(datos):
         fecha_nac=datos['fecha_nacimiento'],
         id_persona=datos['id']
     )
-    
+
     # Modificar el dato en la base de datos
     resultado = tabla_personas.modificar_dato(persona, conexion_bd)
-    
+
     conexion_bd.cerrar_conexion()
-    
+
     return resultado
 
-#fUNCION PARA PARCHAR LAS PERRADAS QUE SE HICIERON DESDE EL FRONT 
+#fUNCION PARA PARCHAR LAS PERRADAS QUE SE HICIERON DESDE EL FRONT
 def asignar_estado(estado):
     if estado == "Ninguno" or estado == "1":
         numero = 1
@@ -482,7 +482,7 @@ def asignar_estado(estado):
         numero = 3
     elif estado == "Enfermo" or estado == "4":
         numero = 4
-    
+
     return numero
 
 def menu_crear(lista_datos):

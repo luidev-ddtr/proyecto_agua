@@ -95,12 +95,6 @@ git push origin nombre-de-tu-rama
 
 
 
-
-
-
-
-
-
 # CREAR UNA NUEVA RAMA YA QUE SE ELIMINO LA REMOTA PERO SIGUE ESTANDO LA LOCAL 
 ASEGURATE QUE ESTES EN LA RAMA DESEADA 
 
@@ -160,4 +154,56 @@ git push -u origin nombre-de-la-rama
 
 git reset HEAD #El nomre del archivo que quieras eliminar 
 
+
+Guía Concisa para Desplegar un Backend Flask en PythonAnywhere
+1. Preparación del Entorno
+Crear un entorno virtual (para aislar dependencias):
+
+bash
+python -m venv /home/Luidev/venv
+source /home/Luidev/venv/bin/activate  # Activar el entorno
+Instalar dependencias (desde requirements.txt):
+
+bash
+pip install -r requirements.txt
+2. Configuración en PythonAnywhere
+Subir el código (via Git o manualmente en la consola).
+
+Especificar la ruta del virtualenv en la pestaña Web:
+
+/home/Luidev/venv
+3. Archivo WSGI
+Editar /var/www/luidev_pythonanywhere_com_wsgi.py para apuntar a la app Flask:
+
+python
+import sys
+path = '/home/Luidev/proyecto_agua'
+if path not in sys.path:
+    sys.path.append(path)
+
+from app import app as application  # "app" es la variable Flask en app.py
+4. Solución de Errores Comunes
+ModuleNotFoundError: Instalar paquetes dentro del entorno virtual activado.
+
+Permisos: Asegurar que los archivos sean accesibles:
+
+bash
+chmod 644 /home/Luidev/proyecto_agua/app.py
+Reiniciar la app después de cambios (pestaña Web → Reload).
+
+5. Pruebas
+Verificar que la API responda:
+
+bash
+curl https://luidev.pythonanywhere.com/ruta_de_tu_endpoint
+Conclusión
+Desplegar un backend Flask en PythonAnywhere requiere:
+
+Aislamiento de dependencias (entorno virtual).
+
+Configuración precisa del archivo WSGI y rutas.
+
+Gestión de permisos y reinicios.
+
+Con estos pasos, tu API estará en producción sin errores de importación o permisos. ¡Éxito! 🚀
 
