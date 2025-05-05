@@ -6,9 +6,12 @@
         });
         
         if (response.ok) {
+            const data = await response.json();
+            alert(data.message)
             window.location.href = `${window.BASE_URL}login`;
         } else {
-            console.error('Error al cerrar sesión');
+            
+            console.error(data.error);
         }
     } catch (error) {
         console.error('Error de red:', error);

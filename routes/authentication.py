@@ -47,26 +47,25 @@ def login():
             response = jsonify({'status': 'success'})
             response.set_cookie(
                 'auth_token',
-                    token,
-                    httponly=True,
-                    secure=True,                  # Solo HTTPS (obligatorio en producción)
-                    samesite='None',              # Permite cookies cross-origin
-                    max_age=7200,
-                    domain='.github.io'           # Dominio padre para GitHub Pages
+                token,
+                httponly=True,
+                secure=False,
+                samesite='Lax',
+                max_age=7200
             )
             return response
             
         return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
 #Configuracion de las cookies para produccion 
-# response.set_cookie(
-#     'auth_token',
-#     token,
-#     httponly=True,
-#     secure=True,                  # Solo HTTPS (obligatorio en producción)
-#     samesite='None',              # Permite cookies cross-origin
-#     max_age=7200,
-#     domain='.github.io'           # Dominio padre para GitHub Pages
-# )
+            # response.set_cookie(
+            #     'auth_token',
+            #         token,
+            #         httponly=True,
+            #         secure=True,                  # Solo HTTPS (obligatorio en producción)
+            #         samesite='None',              # Permite cookies cross-origin
+            #         max_age=7200,
+            #         domain='.github.io'           # Dominio padre para GitHub Pages
+            # )
 
 # Para produccion 
 #             response.set_cookie(
