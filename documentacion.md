@@ -76,14 +76,14 @@ Primero debes de acceder al CMD. Busca en el buscador de windows 10, y escribe c
     <strong>ZONAS RESTRINGIDAS - NO MODIFICAR:</strong>
     <ul>
         <li><code>src/config/</code> - Archivos de configuración crítica</li>
-        <li><code>src/components/core/</code> - Componentes base del sistema</li>
+        <li><code>src/components/AlpineWrapper.astro/</code> - Configuracion de JavaScript</li>
         <li>Cualquier archivo <code>.env</code> - Variables de entorno</li>
         <li><code>astro.config.mjs</code> - Configuración del proyecto</li>
     </ul>
     <strong>ZONAS SEGURAS PARA MODIFICAR:</strong>
     <ul>
         <li><code>public/</code> - Para imágenes y assets</li>
-        <li><code>src/components/ui/</code> - Componentes de interfaz</li>
+        <li><code>src/components/</code> - Componentes de interfaz</li>
         <li><code>src/pages/</code> - Páginas del sistema</li>
     </ul>
 </div>
