@@ -39,11 +39,10 @@ You need create a virtual ent (env), for work with flask
   ├── /tests                 # Pruebas unitarias
   │   └── test_personas.py
   │
-  ├── Frontend                #Todo el front hecho con astro y alpine para js
-  ├── // .env.example           # Plantilla para variables (SÍ se sube) No sr ocupa
+  ├── Frontend               #Todo el front hecho con astro y alpine para js
+  ├── .env                   # Plantilla para variables (SÍ se sube) No sr ocupa
   ├── .gitignore             # Archivos a ignorar por Git
-  ├── // config.py              # Configuración de la aplicación No se ocupa
-  ├── // requirements.txt       # Dependencias No se ocupa
+  ├── requirements.txt       # Dependencias No se ocupa
   └── app.py                 # Punto de entrada principal
 
 
@@ -52,29 +51,59 @@ You need create a virtual ent (env), for work with flask
 ### Reglas de oro
 
 Nunca la compartas: No la subas a GitHub o chats públicos.
-
 Usa una por proyecto: No reutilices claves.
-
 En producción:
-
 Génerala con openssl o secrets.
-
 Almacénala en variables de entorno del servidor (no en el código).
 
 
-## Paginas para cuando se haga build
+# Descripcion
 
-gpt
-https://chatgpt.com/c/68118209-0aa8-8002-9755-edb8e7ce9f1b
+Este el el proyecto de Gestion comunal SG mandho el cual consta de 2 bases principales, backend y frontend
+Tenemos por una parte python y flask para backend y astro, con alpine.js para frontend
 
-flaks como construir - avazar siguiente apartado 
-https://flask-es.readthedocs.io/quickstart/#sessions
+El lenguaje estructurado a objetos es python, y la base de datos por el momento es SQLite
 
-instalacion 
-https://werkzeug.palletsprojects.com/en/stable/installation/#install-werkzeug
+La estructuras de carpetas del backend se muestra aqui, sin embargo las estructura del front se muestra en su propio README.md (En la carpeta frontend).
 
 
+## Documentacion backend
+Aunque ya tenemos la estructura de carpetas tenemos los docstring los cuales docuemntan cada una de las funciones ejemplo
 
-## Funciones asincronas con python 
+```python
+    def funcion_de_prueba(self, parametro1, parametro2):
+        """Descripción breve de lo que hace la función.
 
-https://flask-es.readthedocs.io/async-await/
+        Descripción más detallada de la función. Puede explicar el propósito,
+        el algoritmo utilizado, o cualquier información relevante.
+
+        Args:
+            parametro1 (tipo): Descripción de qué es parametro1 y qué representa.
+            parametro2 (tipo): Descripción de qué es parametro2 y qué representa.
+
+        Returns:
+            tipo: Descripción de lo que retorna la función. Si no retorna nada, se puede omitir
+            o poner "None".
+
+        Raises:
+            TipoError: Descripción de bajo qué condiciones se lanza este error.
+
+        Examples:
+            >>> funcion_de_prueba(valor1, valor2)
+            resultado_esperado
+        """
+        pass
+```
+y despues cuando mandas a llamar a esta funcion, se ve el docstring de esta forma:
+
+![imagen inicio](documentacion_img/docstring.png)
+
+Ademas cada fichero tendra una descripcion de que es lo que se hace en cada uno 
+
+```python
+class Hola Mundo
+  """
+  En esta clase se conecta con la base de datos mediante este metodo, utiliza estas propiedades,
+  tiene estos atributos etc etc
+  """
+```
