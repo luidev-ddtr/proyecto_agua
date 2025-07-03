@@ -2,6 +2,10 @@ from flask import Blueprint, request, jsonify
 
 #Seccion para recibir datos del formulario crear personas 
 from crud.personas.persona import menu_crear, menu_mostrar,menu_modificar
+from utils.nucleo import Conexion
+
+
+from crud.personas.panel_control import PanelControl
 
 #Seguridad
 #from routes.security import token_required 
@@ -9,9 +13,7 @@ from crud.personas.persona import menu_crear, menu_mostrar,menu_modificar
 
 # Crear Blueprint para autenticación
 api_persona_bp = Blueprint('api_personas', __name__, url_prefix='/api')
-
 @api_persona_bp.route('/create_us', methods=['POST'])
-
 def registrar_persona():
     try:
         # Obtener los datos JSON enviados desde el frontend
@@ -33,7 +35,6 @@ def registrar_persona():
         }), 500
 
 @api_persona_bp.route('/read_us', methods=['GET'])  # GET no debe llevar body
-
 def mostrar_persona():
     """
     Endpoint para obtener datos de personas.
@@ -55,7 +56,6 @@ def mostrar_persona():
 
 
 @api_persona_bp.route('/update_us', methods=['POST'])
-
 def actualizar_registro():
     datos = request.get_json()
     
@@ -80,3 +80,27 @@ ERRORES estado_especial DEBE SER UN NUMERO AL IGUAL QUE estudia
 {'id': 'CEN-JT-02-3465', 'nombre_completo': 'juan Joel', 'estado_especial': 'Madre soltera',
 'manzana': 'Centro', 'estudia': 'No', 'fecha_nacimiento': '2002-02-19'}
 """
+
+panel = PanelControl(Conexion("base_datos/data_base.db"))
+@api_persona_bp.route('/dashboard')
+def panel_de_control(debugg):
+    if debugg:
+        #Cuando solo se van a mostrar datos de los usuarios 
+        try:
+            registros_totales =panel.cantidad_registros()
+            registros_validos, tamaño = panel.registros_validos()
+            #edad_prom = panel.promedio_edad()
+            
+            print( (
+                {'datosTotales': registros_totales,
+                    "registrosValidos": tamaño,
+                    "datos": registros_validos,
+                    #"edadPromedio": edad_prom
+                    }
+                        ), 200)
+            
+        except Exception as e:
+            print( ({
+                'status': 'error',
+                'message': str(e)
+            }), 500)

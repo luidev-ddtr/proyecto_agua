@@ -36,7 +36,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || '';
             
             <!-- Campo Usuario -->
             <div>
-                <label for="usuario" class="block text-sm font-medium text-white mb-1 px-3 py-1">Usuario*</label>
+                <label for="usuario" class="block text-sm font-medium text-white mb-1 px-3 py-1">Usuario*  Credenciales: 'usuario''admin123', </label>
                 <div class="relative">
                     <input
                         type="text"
@@ -127,6 +127,8 @@ document.addEventListener('alpine:init', () => {
             password: ''
         },
         isSubmitting: false,
+        USUARIO: 'usuario',  // Mover dentro del componente
+        CONTRASEÑA: 'admin123',  // Mover dentro del componente
 
         validateUser() {
             if (this.form.user.length < 3) {
@@ -146,31 +148,49 @@ document.addEventListener('alpine:init', () => {
             return true;
         },
 
-        async handleSubmit() {
-            if (!this.validateUser() | !this.validatePassword()) return;
-
+        handleSubmit() {
+            // Validar campos primero
+            if (!this.validateUser() || !this.validatePassword()) return;
+            
             this.isSubmitting = true;
             
-            try {
-                const response = await fetch(`${window.AUTH_ENDPOINT}/login`, {
-                    method: 'POST',
-                    credentials: 'include', // ¡Necesario para cookies!
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.form)
-                });
-                
-                if (response.ok) {
-                    // El token está en las cookies, no necesitas localStorage
-                    window.location.href = `${window.BASE_URL}`;
+            // Simular carga (eliminar en producción)
+            setTimeout(() => {
+                if (this.form.user === this.USUARIO && this.form.password === this.CONTRASEÑA) {
+                    window.location.href = window.BASE_URL || '/';
                 } else {
-                    const data = await response.json();
-                    alert(data.error || 'Error en login');
+                    alert('Credenciales incorrectas');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al conectar con el servidor');
-            }
+                this.isSubmitting = false;
+            }, 800);
         }
     }));
 });
+        // async handleSubmit() {
+        //     if (!this.validateUser() | !this.validatePassword()) return;
+
+        //     this.isSubmitting = true;
+            
+        //     try {
+        //         const response = await fetch(`${window.AUTH_ENDPOINT}/login`, {
+        //             method: 'POST',
+        //             credentials: 'include', // ¡Necesario para cookies!
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify(this.form)
+        //         });
+                
+        //         if (response.ok) {
+        //             // El token está en las cookies, no necesitas localStorage
+        //             window.location.href = `${window.BASE_URL}`;
+        //         } else {
+        //             const data = await response.json();
+        //             alert(data.error || 'Error en login');
+        //         }
+        //     } catch (error) {
+        //         console.error('Error:', error);
+        //         alert('Error al conectar con el servidor');
+        //     }
+        // }
 </script>
+
+

@@ -154,3 +154,6 @@ git push -u origin nombre-de-la-rama
 git reset HEAD #El nomre del archivo que quieras eliminar 
 
 
+## Python anywhere
+https://www.pythonanywhere.com/user/Luidev/files/home/Luidev/proyecto_agua/
+
