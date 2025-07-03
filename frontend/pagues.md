@@ -21,12 +21,12 @@ Posición	Cubre toda la pantalla
 
 
 ## 🧭 Panel de Navegación
-'''html
+```html
 <div class="w-1/2 flex flex-col items-center space-y-6">
   <FlechaBoton texto="Agregar Registro" href="${BASE_URL}/crud/pagos/agregar"/>
   <FlechaBoton texto="Mostrar Registro" href="${BASE_URL}/crud/pagos/listar"/> 
 </div>
-'''
+```
 
 ### 🛠 Componentes Clave
 🎯 FlechaBoton

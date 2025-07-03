@@ -1,3 +1,38 @@
+"""
+Módulo de Inicialización de la Aplicación Flask
+
+Este módulo crea y configura la instancia principal de la aplicación Flask, registra los blueprints
+para diferentes grupos de rutas y configura las políticas CORS.
+
+Configuración:
+- Carga variables de entorno desde el archivo .env (crítico para despliegue en PythonAnywhere)
+- Configura políticas CORS con reglas específicas para rutas API y de autenticación
+
+Blueprints Registrados:
+- auth_bp: Rutas de autenticación (login, logout, gestión de sesión)
+- api_pago_bp: Rutas API de pagos (operaciones CRUD para pagos)
+- api_persona_bp: Rutas API de personas (operaciones CRUD para datos de personas)
+
+Configuración CORS:
+- Rutas API (/api/*):
+  - Orígenes permitidos: URL_FRONTEND del .env
+  - Métodos: GET, POST, PUT, OPTIONS
+  - Cabeceras: Content-Type
+  - Credenciales: Soporte habilitado
+- Rutas de autenticación (/auth/*):
+  - Orígenes permitidos: URL_FRONTEND del .env
+  - Métodos: GET, POST, OPTIONS
+  - Cabeceras: Authorization, Content-Type
+  - Credenciales: Soporte habilitado
+
+Variables de Entorno Requeridas:
+- URL_FRONTEND: URL de la aplicación frontend para políticas CORS
+
+Uso:
+    python app.py  # Ejecuta el servidor de desarrollo en modo debug
+
+Nota: En entornos de producción, debe ejecutarse a través de un servidor WSGI como Gunicorn.
+"""
 #Fichero el cual creara la instancia de flask # 
 from flask import Flask
 from flask_cors import CORS  # Importa CORS
