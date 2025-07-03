@@ -9,42 +9,59 @@ You need create a virtual ent (env), for work with flask
 
 # Project structure 
 
-/proyecto_agua
-  │
-  ├── /env                   # Entorno virtual (NO se sube a Git)
-  │
-  ├── /base_datos            # (Existente)
-  │   └── bd_mandho.db       # Archivo SQLite (NO subir si tiene datos sensibles)
-  │
-  ├── /crud 
-  |   |___/personas/ persona.py               # Lógica CRUD separada
-  │   └── /pago_agua          
-  │       ├── create.py
-  │       ├── read.py
-  │       ├── update.py
-  │       └── delete.py
-  │
-  ├── /models                # Modelos de datos
-  │   ├── persona.py         # Clase Persona
-  │   └── pago_agua.py       # Clase PagoAgua
-  │
-  ├── /services              # Lógica de negocio
-  │   └── persona_service.py 
-  │
-  │
-  ├── /utils                 # Helpers
-  │   ├── nucleo.py        # Conexión a BD
-  │   └── config_manager.py  # Manejo de configuraciones
-  │
-  ├── /tests                 # Pruebas unitarias
-  │   └── test_personas.py
-  │
-  ├── Frontend               #Todo el front hecho con astro y alpine para js
-  ├── .env                   # Plantilla para variables (SÍ se sube) No sr ocupa
-  ├── .gitignore             # Archivos a ignorar por Git
-  ├── requirements.txt       # Dependencias No se ocupa
-  └── app.py                 # Punto de entrada principal
-
+```mermaid
+%% Diagrama de estructura de directorios para proyecto_agua con Flask
+graph TD
+    root["/proyecto_agua # Proyecto hecho con Flask y Python"]
+    
+    %% Entorno y base de datos
+    root --> env["/env # Entorno virtual (NO se sube a Git)"]
+    root --> base_datos["/base_datos # (Carpeta con base de datos SQLite)"]
+    base_datos --> bd_mandho["bd_mandho.db # Archivo SQLite (NO subir con datos sensibles)"]
+    
+    %% CRUD Operations
+    root --> crud["/crud"]
+    crud --> personas_crud["/personas/persona.py # Lógica CRUD separada"]
+    crud --> pago_agua["/pago_agua"]
+    pago_agua --> create["create.py"]
+    pago_agua --> read["read.py"]
+    pago_agua --> update["update.py"]
+    pago_agua --> delete["delete.py"]
+    
+    %% Modelos y rutas
+    root --> models["/models # Modelos de Datos"]
+    models --> persona_model["persona.py # Clase Persona"]
+    models --> pago_model["pago_agua.py # Clase PagoAgua"]
+    
+    root --> routes["/routes # Endpoints API"]
+    routes --> api_persona["api_persona.py"]
+    routes --> api_pagos["api_pagos.py"]
+    routes --> otros_rutas["# otros archivos (no usados)"]
+    
+    %% Utils y tests
+    root --> utils["/utils # Helpers"]
+    utils --> nucleo["nucleo.py # Conexión a BD"]
+    
+    root --> tests["/tests # Pruebas unitarias"]
+    tests --> test_personas["test_personas.py # (Vacío)"]
+    
+    %% Frontend y archivos raíz
+    root --> frontend["Frontend # Astro + Alpine.js"]
+    root --> env_file[".env # Plantilla para variables"]
+    root --> gitignore[".gitignore"]
+    root --> requirements["requirements.txt"]
+    root --> docs_img["/documentacion_img # Imágenes documentación"]
+    root --> app["app.py # Punto de entrada principal"]
+    
+    %% Relaciones clave
+    persona_model -.->|Usa| nucleo
+    pago_model -.->|Usa| nucleo
+    api_persona -.->|Consume| persona_model
+    api_pagos -.->|Consume| pago_model
+    crud -.->|Operaciones| models
+    app -->|Importa| routes
+    routes -->|Usa| crud
+```
 
 ## Generar una clave secreta SECRET_KEY
 

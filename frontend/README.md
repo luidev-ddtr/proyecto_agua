@@ -4,34 +4,41 @@ Recuerda investigas mas a fondo como es que funciona el framewrok de astro para 
 
 ## 🚀 Project Structure
 
-/
-├── ✅ ZONAS SEGURAS (Puedes modificar aquí)
-│   ├── public/              # 📸 Recursos públicos (imágenes, videos)
-│   │   ├── fondoForm.webp   # Fondo para formularios
-│   │   ├── logo.svg         # Logo editable (¡mantén el nombre!)
-│   │   └── puente.webp      # Imágenes de contenido
-│   │
-│   └── src/                 # 💻 Código editable
-│       ├── pages/           # 🌐 Páginas principales
-│       │   ├── index.astro  # Página de inicio
-│       │   ├── login.astro  # Login de usuarios
-│       │   └── crud/        # Operaciones de base de datos
-│       │       ├── personas/ # ABM de personas
-│       │       └── pagos/    # Gestión de pagos
-│       │
-│       └── components/      # 🧩 Componentes reutilizables
-│           ├── Header.astro # Barra de navegación
-│           ├── Logo.astro   # Componente del logo
-│           └── crud/        # Componentes CRUD
-│               ├── personas/ # Formularios de personas
-│               └── pagos/    # Formularios de pagos
-│
-└── 🚫 ZONAS PROHIBIDAS (No tocar)
-    ├── .astro/              # Configuración automática de Astro
-    ├── node_modules/        # Dependencias instaladas (autogenerado)
-    ├── dist/                # Versión compilada (autogenerado)
-    ├── .env                 # Contraseñas y claves
-    └── [Otros archivos de configuración]
+```mermaid
+%% Diagrama de estructura de directorios
+graph TD
+    /["/ (Raíz)"]
+    
+    %% Zonas seguras (puedes modificar aquí)
+    / --> ZONAS_SEGURAS["✅ ZONAS SEGURAS (Puedes modificar aquí)"]
+    ZONAS_SEGURAS --> public["public/ 📸 Recursos públicos"]
+    public --> public_fondo["fondoForm.webp # Fondo para formularios"]
+    public --> public_logo["logo.svg # Logo editable (¡mantén el nombre!)"]
+    public --> public_puente["puente.webp # Imágenes de contenido"]
+    
+    ZONAS_SEGURAS --> src["src/ 💻 Código editable"]
+    src --> pages["pages/ 🌐 Páginas principales"]
+    pages --> pages_index["index.astro # Página de inicio"]
+    pages --> pages_login["login.astro # Login de usuarios"]
+    pages --> crud["crud/ # Operaciones de base de datos"]
+    crud --> crud_personas["personas/ # ABM de personas"]
+    crud --> crud_pagos["pagos/ # Gestión de pagos"]
+    
+    src --> components["components/ 🧩 Componentes reutilizables"]
+    components --> Header["Header.astro # Barra de navegación"]
+    components --> Logo["Logo.astro # Componente del logo"]
+    components --> components_crud["crud/ # Componentes CRUD"]
+    components_crud --> crud_personas_components["personas/ # Formularios de personas"]
+    components_crud --> crud_pagos_components["pagos/ # Formularios de pagos"]
+    
+    %% Zonas prohibidas (no tocar)
+    / --> ZONAS_PROHIBIDAS["🚫 ZONAS PROHIBIDAS (No tocar)"]
+    ZONAS_PROHIBIDAS --> astro[".astro/ # Configuración automática de Astro"]
+    ZONAS_PROHIBIDAS --> node_modules["node_modules/ # Dependencias instaladas"]
+    ZONAS_PROHIBIDAS --> dist["dist/ # Versión compilada"]
+    ZONAS_PROHIBIDAS --> env[".env # Contraseñas y claves"]
+    ZONAS_PROHIBIDAS --> otros["[Otros archivos de configuración]"]
+```
 
 
 ## 🧞 Commandos
@@ -64,6 +71,8 @@ primero que nada ejecuta
 pnpm run dev # Para poder ejecutar tu servidor de desarrollo
 ```
 
+
+# Aqui se presenta la documentacion de 2 componentes clave
 
 ## 📝 Documentación Completa del Formulario de Registro de pago
 
