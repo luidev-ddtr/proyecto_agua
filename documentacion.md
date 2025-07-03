@@ -96,11 +96,8 @@ Primero debes de acceder al CMD. Busca en el buscador de windows 10, y escribe c
 1.  ### Preparar el entorno
 
     ```
-    # Regresa a la raíz del proyecto
-    cd ..
+    # Accede a la carpeta raiz (fuera de frontend)
 
-    # Accede a la carpeta del backend
-    cd backend
 
     # Crear entorno virtual (Windows)
     python -m venv venv
