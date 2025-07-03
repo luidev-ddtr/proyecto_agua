@@ -35,7 +35,7 @@ Primero debes de acceder al CMD. Busca en el buscador de windows 10, y escribe c
     cd ~/Desktop  # o cualquier otra ubicación
 
     # Clona el repositorio
-    git clone [https://github.com/tu-usuario/tu-repositorio.git](https://github.com/tu-usuario/tu-repositorio.git)
+    git clone [https://github.com/luidev-ddtr/](https://github.com/tu-usuario/tu-repositorio.git)
 
     # Accede al directorio del proyecto
     cd tu-repositorio
