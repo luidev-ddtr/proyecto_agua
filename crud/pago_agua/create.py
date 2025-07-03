@@ -39,7 +39,7 @@ if __name__ == "__main__":
     conexion_bd = Conexion('base_datos/data_base.db')
     "Los datos ingresados desde el front son id_persona, tomas_agua, año, fecha de pago, cantidad"
     registro_pago = Registro("CER-24-34dr",5, "2024", "2024-01-24", 500) 
-    
+
     
     conexion_bd.cerrar_conexion()
 
