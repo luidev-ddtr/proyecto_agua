@@ -139,10 +139,12 @@ Primero debes de acceder al CMD. Busca en el buscador de windows 10, y escribe c
 
 * ### Problemas con Python:
     ```
-    # Recrear entorno virtual
     deactivate
-    rmdir /s venv
+    rmdir /s /q venv
     python -m venv venv
+    call venv\Scripts\activate.bat
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
     ```
 
 
