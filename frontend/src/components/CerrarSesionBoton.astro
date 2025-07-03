@@ -1,21 +1,5 @@
-<div x-data="{ logout: async function() {  <!-- Define la función directamente en x-data -->
-    try {
-        const response = await fetch(`${window.AUTH_ENDPOINT}/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            alert(data.message)
+<div x-data="{ logout: async function() { 
             window.location.href = `${window.BASE_URL}login`;
-        } else {
-            
-            console.error(data.error);
-        }
-    } catch (error) {
-        console.error('Error de red:', error);
-    }
 }}">
     <!-- Vincula el evento click al método logout() -->
     <button 

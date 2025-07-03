@@ -1,6 +1,7 @@
 # proyecto_agua
 This is my first project with new tecnologies and git !!
 
+# Lee la documentacion para instalar el proyecto
 
 # Before the create
 

@@ -7,23 +7,6 @@ from models.personas import Persona
 from models.estado_especial import TablaEstado
 from utils.nucleo import Conexion
 class TablaPersona(BaseDatos):
-    def cantidad_registros(self,conexion_db):
-        """
-        Retorna el número total de registros en la tabla 'persona'
-
-        Args:
-            conexion_db: Objeto de conexión a la base de datos
-
-        Returns:
-            int: Cantidad de registros
-            None: Si ocurre un error
-        """
-        conexion, cursor = conexion_db.conexion()
-        # Consulta optimizada para contar registros
-        cursor.execute("SELECT COUNT(*) FROM persona")
-        cantidad = cursor.fetchone()[0]
-        return cantidad
-
     def agregar_dato(self, persona, conexion_db):
         """
         Agrega un nuevo registro a la tabla 'persona' en la base de datos.

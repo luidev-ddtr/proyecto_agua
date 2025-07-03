@@ -22,10 +22,13 @@
           this.hasSearched = true;
           
           try {
-            const response = await fetch(`${window.API_ENDPOINT}/buscar_us?q=${encodeURIComponent(this.searchTerm)}`);
+            const response = await fetch(`${window.API_ENDPOINT}/buscar_us?q=${encodeURIComponent(this.searchTerm)}`, {
+              credentials: 'include' // Añadido para incluir credenciales
+            });
             
             if (!response.ok) {
-              throw new Error(`Error HTTP: ${response.status}`);
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.message || `Error HTTP: ${response.status}`);
             }
             
             const data = await response.json();
@@ -51,6 +54,8 @@
             console.error('Error en búsqueda:', err);
             this.error = err.message;
             this.results = [];
+            // Mostrar error al usuario
+            this.showNotification(err.message || 'Error en la búsqueda', 'error');
           } finally {
             this.isLoading = false;
           }
@@ -281,55 +286,57 @@ decrementarCantidad() {
   this.validarCantidad();
 },
            
-           async submitForm() {
-             // Validar todos los campos
-             const isValid = this.validarTomas() && this.validarAnio() && this.validarCantidad();
-             
-             if (!isValid) {
-               return;
-             }
-             
-             const formData = {
-               id_persona: this.form.id_persona,
-               nombre_completo: this.form.nombre_completo,
-               tomas: this.form.tomas,
-               anio: this.form.anio,
-               fecha_pago: this.form.fecha_pago,
-               cantidad: this.form.cantidad
-             };
-             
-             console.log('Datos a enviar:', formData);
-             
-             try {
-               const response = await fetch(`${window.API_ENDPOINT}/create_pay`, {
-                 method: 'POST',
-                 headers: {
-                   'Content-Type': 'application/json',
-                 },
-                 body: JSON.stringify(formData)
-               });
-               
-               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-               
-               const data = await response.json();
-               console.log('Respuesta:', data);
-               this.showNotification('Pago registrado exitosamente', 'success');
-               
-               // Resetear formulario
-               this.formDisabled = true;
-               this.form = {
-                 nombre_completo: '',
-                 id_persona: '',
-                 tomas: '',
-                 anio: new Date().getFullYear(),
-                 fecha_pago: new Date().toISOString().split('T')[0],
-                 cantidad: 0
-               };
-             } catch (error) {
-               console.error('Error:', error);
-               this.showNotification('Error al registrar el pago, verifica si no se esta pagando el mismo año', 'error');
-             }
-           },
+            async submitForm() {
+          // Validar todos los campos
+          const isValid = this.validarTomas() && this.validarAnio() && this.validarCantidad();
+          
+          if (!isValid) {
+            return;
+          }
+          
+          const formData = {
+            id_persona: this.form.id_persona,
+            nombre_completo: this.form.nombre_completo,
+            tomas: this.form.tomas,
+            anio: this.form.anio,
+            fecha_pago: this.form.fecha_pago,
+            cantidad: this.form.cantidad
+          };
+          
+          try {
+            const response = await fetch(`${window.API_ENDPOINT}/create_pay`, {
+              method: 'POST',
+              credentials: 'include', // Añadido para incluir credenciales
+              headers: {
+                'Content-Type': 'application/json', // Añadido header para POST
+              },
+              body: JSON.stringify(formData)
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Respuesta:', data);
+            this.showNotification(data.message || 'Pago registrado exitosamente', 'success');
+            
+            // Resetear formulario
+            this.formDisabled = true;
+            this.form = {
+              nombre_completo: '',
+              id_persona: '',
+              tomas: '',
+              anio: new Date().getFullYear(),
+              fecha_pago: new Date().toISOString().split('T')[0],
+              cantidad: 0
+            };
+          } catch (error) {
+            console.error('Error:', error);
+            this.showNotification(error.message || 'Error al registrar el pago', 'error');
+          }
+        },
            
            showNotification(message, type = 'success') {
              const notification = document.createElement('div');
