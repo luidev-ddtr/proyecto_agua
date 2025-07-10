@@ -1,53 +1,96 @@
-import sqlite3
+# conexion_sqlserver.py
+import pyodbc
 from datetime import datetime
 
 class Conexion:
     """
-    Clase la cual servira de conexión para que los datos puedan ser enviados a la bd.
-    Se encarga de abrir, cerrar y manejar errores en la conexión.
+    Clase para manejar conexiones a SQL Server.
+    Centraliza todas las operaciones de base de datos.
     """
-    def __init__(self, ruta):
-        self.conn = sqlite3.connect(ruta)
-        self.cursor = self.conn.cursor()
+    
+    def __init__(self):
+        """
+        Inicializa la conexión a SQL Server usando los parámetros centralizados.
+        """
+        self.server = "ANGEL\\SQLEXPRESS"  # Cada quien debe configurar su servidor
+        self.database = "GESTION_AGUA"
+        self.conn = None
+        self.cursor = None
+        self._conectar()  # Serian un private de C#
+
+    def _conectar(self):
+        """
+        Establece la conexión con la base de datos.
+        """
+        try:
+            self.conn = pyodbc.connect(
+                'DRIVER={SQL Server};'
+                f'SERVER={self.server};'
+                f'DATABASE={self.database};'
+                'Trusted_Connection=yes;'
+            )
+            self.cursor = self.conn.cursor()
+            print("Conexión establecida correctamente")
+        except pyodbc.Error as e:
+            print(f"Error al conectar a SQL Server: {e}")
+            raise
+
     def guardar_cambios(self):
         """
-        Método que guarda los cambios en la base de datos y cierra la conexión.
-        Si ocurre un error durante el commit o el cierre, se captura y se lanza una excepción.
+        Guarda los cambios pendientes en la base de datos.
         """
         try:
-            # Intentar guardar los cambios
             self.conn.commit()
-        except sqlite3.Error as e:
-            # Capturar errores durante el commit
-            print(f"Error al guardar los cambios: {e}")
+        except pyodbc.Error as e:
+            print(f"Error al guardar cambios: {e}")
             raise
-            
+
     def conexion(self):
         """
-        Devuelve una tupla con las variables para la conexión.
-        Si la conexión o el cursor no están inicializados, lanza una excepción.
+        Devuelve la conexión y cursor activos.
         """
-        try:
-            if self.conn is None or self.cursor is None:
-                raise sqlite3.Error("La conexión o el cursor no están inicializados.")
-            return self.conn, self.cursor
-        except sqlite3.Error as e:
-            print(f"Error al enviar conexiones: {e}")
-            raise
+        if not self.conn or not self.cursor:
+            raise pyodbc.Error("Conexión no está activa")
+        return self.conn, self.cursor
+
     def cerrar_conexion(self):
         """
-        Cierra la conexión y el cursor.
-        Si ocurre un error, se captura y se lanza una excepción.
+        Cierra la conexión de manera segura.
         """
         try:
             if self.cursor:
                 self.cursor.close()
             if self.conn:
                 self.conn.close()
-            print("Conexión cerrada correctamente. (desde método cerrar_conexion)")
-        except sqlite3.Error as e:
-            print(f"Error al cerrar la conexión: {e}")
+            print("Conexión cerrada correctamente")
+        except pyodbc.Error as e:
+            print(f"Error al cerrar conexión: {e}")
             raise
+
+    def ejecutar(self, consulta, parametros=None):
+        """
+        Ejecuta una consulta SQL con parámetros opcionales.
+        
+        Args:
+            consulta (str): Consulta SQL a ejecutar
+            parametros (tuple, optional): Parámetros para la consulta
+            
+        Returns:
+            list: Resultados para consultas SELECT, None para otras
+        """
+        try:
+            if parametros:
+                self.cursor.execute(consulta, parametros)
+            else:
+                self.cursor.execute(consulta)
+                
+            if consulta.strip().upper().startswith('SELECT'):
+                return self.cursor.fetchall()
+            return None
+        except pyodbc.Error as e:
+            print(f"Error al ejecutar consulta: {e}")
+            raise
+
 
 class Formateo:
     def formatear_fecha(self,fecha_string):
@@ -57,3 +100,10 @@ class Formateo:
         except ValueError:
             print("Formato de fecha incorrecto. Usa YYYY-MM-DD.")
             return None
+        
+
+if __name__ == "__main__":
+    # Ejemplo de uso
+    conexion = Conexion()
+    
+    conexion.conexion()
