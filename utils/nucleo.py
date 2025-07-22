@@ -2,21 +2,24 @@
 import pyodbc
 from datetime import datetime
 
+
 class Conexion:
     """
     Clase para manejar conexiones a SQL Server.
     Centraliza todas las operaciones de base de datos.
     """
-    
+    server = "FERLOXG\\SQLEXPRESS"
+    database = "GESTION_AGUA"
+
     def __init__(self):
         """
         Inicializa la conexión a SQL Server usando los parámetros centralizados.
         """
-        self.server = "ANGEL\\SQLEXPRESS"  # Cada quien debe configurar su servidor
-        self.database = "GESTION_AGUA"
+        self.server = self.server
+        self.database = self.database
         self.conn = None
         self.cursor = None
-        self._conectar()  # Serian un private de C#
+        self._conectar()
 
     def _conectar(self):
         """
@@ -50,7 +53,7 @@ class Conexion:
         Devuelve la conexión y cursor activos.
         """
         if not self.conn or not self.cursor:
-            raise pyodbc.Error("Conexión no está activa")
+            raise pyodbc.Error(f"Conexión no está activa {pyodbc.error}")
         return self.conn, self.cursor
 
     def cerrar_conexion(self):
@@ -68,28 +71,28 @@ class Conexion:
             raise
 
     def ejecutar(self, consulta, parametros=None):
-        """
-        Ejecuta una consulta SQL con parámetros opcionales.
-        
-        Args:
-            consulta (str): Consulta SQL a ejecutar
-            parametros (tuple, optional): Parámetros para la consulta
+            """
+            Ejecuta una consulta SQL con parámetros opcionales.
             
-        Returns:
-            list: Resultados para consultas SELECT, None para otras
-        """
-        try:
-            if parametros:
-                self.cursor.execute(consulta, parametros)
-            else:
-                self.cursor.execute(consulta)
+            Args:
+                consulta (str): Consulta SQL a ejecutar
+                parametros (tuple, optional): Parámetros para la consulta
                 
-            if consulta.strip().upper().startswith('SELECT'):
-                return self.cursor.fetchall()
-            return None
-        except pyodbc.Error as e:
-            print(f"Error al ejecutar consulta: {e}")
-            raise
+            Returns:
+                list: Resultados para consultas SELECT, None para otras
+            """
+            try:
+                if parametros:
+                    self.cursor.execute(consulta, parametros)
+                else:
+                    self.cursor.execute(consulta)
+                    
+                if consulta.strip().upper().startswith('SELECT'):
+                    return self.cursor.fetchall()
+                return None
+            except pyodbc.Error as e:
+                print(f"Error al ejecutar consulta: {e}")
+                raise
 
 
 class Formateo:

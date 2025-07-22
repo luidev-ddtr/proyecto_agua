@@ -19,8 +19,8 @@ class MostrarDatos:
         
         query = """
         SELECT 
-            id, persona_id, tomas_agua, año, fecha_pago, estado_pago, cantidad, tarifa_pendiente
-        FROM pagos_agua
+            ID_PAGO, ID_PERSONA, ID_TOMA, ESTADO_PAGO, CANTIDAD, ANIO, FECHA, TARIFA_PENDIENTE
+        FROM PAGO_AGUA
         WHERE id = ?
         """
         cursor.execute(query, (indice,))
@@ -52,28 +52,26 @@ class MostrarDatos:
         Returns:
             list: Lista de diccionarios con los datos formateados de todas las personas
         """
+        print("BANDERAMOSTAR1")
         # 1. Obtener conexión y ejecutar consulta
         conexion, cursor = conexion_db.conexion()
-        
+        print("BANDERAMOSTAR2")
         cursor.execute("""
-            SELECT id, persona_id, tomas_agua, año,
-            fecha_pago, estado_pago, cantidad,
-            tarifa_pendiente
-        FROM pagos_agua
+            SELECT * FROM PAGO_AGUA
         """)
-        
+        print("BANDERAMOSTAR4")
         registros = cursor.fetchall()
         if not registros:
             print("No se encontraron registros en la tabla persona")
             return []
-        
+        print("BANDERAMOSTAR5")
         resultados = []
         nombre_persona = mostrar_persona()
         for registro in registros:
-            
+            print(registro)
             "Se obtiene el nombre completo de la persona"
             datos  = nombre_persona.mostrar_registro_persona(registro[1],conexion_db)
-            
+            print("BANDERAMOSTAR6")
             # Estructurar datos
             datos_registro = {
                 'id': registro[0],
@@ -91,6 +89,7 @@ class MostrarDatos:
                 
             }
             resultados.append(datos_registro)
+            print("BANDERAMOSTAR7")
         
         return resultados
     

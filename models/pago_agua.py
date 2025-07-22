@@ -104,8 +104,8 @@ class Registro:
         #Registro nuevo
         if id_registro is None and recalcular is None:
             self.id_persona = str(id_persona)
-            self.tomas_agua = int(tomas_agua) 
-            self.año = str(año) #Al iniio si ya que año se pasa como entero mas no str
+            self.tomas_agua = str(tomas_agua) 
+            self.año = str(año) #Al inicio si ya que año se pasa como entero mas no str
             self.id_registro = str(self.generar_id())
             self.fecha_pago = str(fecha_pago)
             self.cantidad = int(cantidad)
@@ -115,7 +115,7 @@ class Registro:
         elif recalcular == True:
             self.id_registro = str(id_registro)
             self.id_persona = str(id_persona)
-            self.tomas_agua = int(tomas_agua) 
+            self.tomas_agua = str(tomas_agua) 
             self.año = str(año)
             self.fecha_pago = str(fecha_pago)
             self.cantidad = int(cantidad)
@@ -124,7 +124,7 @@ class Registro:
                 #Datos cargados desde la bd
             self.id_registro = str(id_registro)
             self.id_persona = str(id_persona)
-            self.tomas_agua = int(tomas_agua) 
+            self.tomas_agua = str(tomas_agua) 
             self.año = año
             self.fecha_pago = fecha_pago
             self.cantidad = int(cantidad)
@@ -221,9 +221,10 @@ class CalculadoraCobro:
         pago_servicio = TarifaPago()
         pago_anual = pago_servicio.get_costo_anual()
         
-        if tomas_agua > 1 and tarifa_pendiente is None: #para validar los casos en que el registro ya viene con tarifa pendiente 
-            pago_anual = pago_anual * tomas_agua
-        
+
+        # if tomas_agua > 1 and tarifa_pendiente is None: #para validar los casos en que el registro ya viene con tarifa pendiente 
+        #     pago_anual = pago_anual * tomas_agua
+        pago_anual = 360
         # Lógica general
         if estado == 1:
             return 1, 0  # Pago ya completado

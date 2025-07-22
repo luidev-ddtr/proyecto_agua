@@ -13,9 +13,10 @@ load_dotenv()  # Carga las variables del .env
 def crear(datos): #Se trae un diccionario
     """Funcion la cual es encarga de manejar todas las intancias correctas para introducir datos de pago de agua
     a la bd, ademas de que introduce y recibe el resultado de hacer la consulta a la bd para crear datos"""
-    conexion_db= Conexion(os.getenv('DATABASE_PATH'))
+    conexion_db= Conexion()
     crear_registro = Create()
     visualizador = MostrarDatos()
+    datos["tomas"] = 'qazxswedcvfrtg'
     registro = Registro(datos["id_persona"],datos["tomas"], datos["anio"], datos["fecha_pago"], datos["cantidad"])
     
     # Validacion para saber si no hay algun registro que se 
@@ -45,7 +46,7 @@ def mostrar():
     datos al edpoint"""
     
     visualizador = MostrarDatos()
-    conexion_db= Conexion(os.getenv('DATABASE_PATH'))
+    conexion_db= Conexion()
     
     datos = visualizador.mostrar_todos_los_datos(conexion_db)
     
@@ -58,7 +59,7 @@ def mostrar():
 def modificar(datos):
     
     #Funcion aun no funciona bien 
-    conexion_db= Conexion(os.getenv('DATABASE_PATH'))
+    conexion_db= Conexion()
     md_registro = Modificate_register()
     visuali = MostrarDatos()
     print("Banderas 1")

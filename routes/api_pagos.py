@@ -53,7 +53,7 @@ def busqueda_tiempo_real():
             'status': 'error',
             'message': f"Error en búsqueda: {str(e)}"
         }), 500
-
+print("banpago1")
 
 @api_pago_bp.route('/create_pay', methods=['POST'])
 
@@ -75,6 +75,7 @@ def registrar_pago():
             return jsonify({'Perfecto':"datos recibido correctamente"}), 200
         
     except Exception as e:
+        print(e)
         # Manejar cualquier error inesperado
         return jsonify({
             'status': 'error',
@@ -95,6 +96,7 @@ def mostrar_pagos():
         return jsonify({'Perfecto': datos}), 200
     
     except Exception as e:
+        print(e)
         return jsonify({
             'status': 'error',
             'message': str(e)

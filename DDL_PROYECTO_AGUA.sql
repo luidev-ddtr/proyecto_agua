@@ -1,0 +1,90 @@
+CREATE DATABASE GESTION_AGUA
+
+USE GESTION_AGUA
+
+CREATE TABLE ESTADO_ESPECIAL
+(
+    ID_ESTADO INT PRIMARY KEY,
+    NOMBRE VARCHAR(50) NOT NULL
+    /* Campos opcionales que podr�an ser �tiles:
+    DESCRIPCION VARCHAR(200),  -- Para detallar qu� significa este estado
+    ACTIVO BOOLEAN DEFAULT TRUE  -- Permite desactivar estados sin eliminarlos
+    */
+);
+
+CREATE TABLE PERSONAS
+(
+    ID_PERSONA CHAR(14) PRIMARY KEY,
+    NOMBRE VARCHAR(200) NOT NULL,
+    APELLIDOS VARCHAR(200) NOT NULL,
+    FECHA_NAC DATE NOT NULL,
+    ESTADO INT NOT NULL,
+    MANZANA VARCHAR(20) NOT NULL,
+    ESTADO_ESPECIAL INT,
+    /* Campos opcionales para auditor�a:
+    FECHA_CREACION TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Saber cu�ndo se registr�
+    USUARIO_CREACION VARCHAR(50),  -- Qui�n realiz� el registro
+    FECHA_ACTUALIZACION TIMESTAMP,  -- �ltima modificaci�n
+    USUARIO_ACTUALIZACION VARCHAR(50)  -- Qui�n modific�
+    */
+    FOREIGN KEY (ESTADO_ESPECIAL) REFERENCES ESTADO_ESPECIAL(ID_ESTADO) 
+    ON DELETE SET NULL ON UPDATE CASCADE
+    /* ON DELETE SET NULL: Si eliminas un estado especial, no elimina la persona, solo establece NULL
+       ON UPDATE CASCADE: Si cambias el ID_ESTADO, se actualiza autom�ticamente en PERSONAS */
+);
+ 
+CREATE TABLE TOMA_AGUA 
+(
+    ID_TOMA CHAR(14) PRIMARY KEY,
+    UBICACION VARCHAR(200) NOT NULL,
+    PERSONAS_USAN INT CHECK (PERSONAS_USAN > 0)
+    /* Campos opcionales para gesti�n:
+    FECHA_INSTALACION DATE,  -- Cu�ndo se instal� esta toma
+    ESTADO VARCHAR(20) DEFAULT 'ACTIVA',  -- Activa/Inactiva/En reparaci�n
+    ULTIMA_MANTENCION DATE  -- Fecha del �ltimo mantenimiento
+    */
+);
+
+CREATE TABLE PAGO_AGUA 
+(
+    ID_PAGO CHAR(14),
+    ID_PERSONA CHAR(14),
+    ID_TOMA CHAR(14),
+    ESTADO_PAGO INT NOT NULL,
+    CANTIDAD MONEY CHECK (CANTIDAD > 0),
+    ANIO INT NOT NULL,
+    FECHA DATE NOT NULL,
+    PRIMARY KEY (ID_PAGO, ID_PERSONA, ID_TOMA),
+    FOREIGN KEY (ID_PERSONA) REFERENCES PERSONAS(ID_PERSONA)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ID_TOMA) REFERENCES TOMA_AGUA(ID_TOMA)
+    ON DELETE NO ACTION ON UPDATE CASCADE
+);
+
+CREATE TABLE CARGO
+(
+    ID_CARGO CHAR(14) PRIMARY KEY,
+    CARGO VARCHAR(20) NOT NULL,
+    FUNCION VARCHAR(200) NOT NULL,
+    CONTRASENA VARCHAR(10) NOT NULL,
+    ID_PERSONA CHAR(14),
+    /* Campos opcionales para gesti�n de cargos:
+    FECHA_ASIGNACION DATE,  -- Cu�ndo se asign� este cargo
+    ACTIVO BOOLEAN DEFAULT TRUE,  -- Permite desactivar el cargo sin eliminarlo
+    NIVEL_ACCESO INT  -- Para controlar permisos del cargo
+    */
+    FOREIGN KEY (ID_PERSONA) REFERENCES PERSONAS(ID_PERSONA)
+    ON DELETE SET NULL ON UPDATE CASCADE
+    /* ON DELETE SET NULL: Si eliminas la persona, no elimina el cargo, solo establece NULL
+       ON UPDATE CASCADE: Si cambias el ID_PERSONA, se actualiza en CARGO */
+);
+
+SELECT * FROM TOMA_AGUA
+
+SELECT * FROM PAGO_AGUA
+
+SELECT * FROM PERSONAS
+
+SELECT * FROM ESTADO_ESPECIAL
+
+SELECT * FROM CARGO
