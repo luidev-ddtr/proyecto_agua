@@ -26,20 +26,21 @@ class TablaPersona(BaseDatos):
         try:
             conexion, cursor = conexion_db.conexion()
             query = """
-            INSERT INTO persona
-            (id, nombre, apellidos, estado_especial, manzana, estudia, activo, fecha_nacimiento)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO PERSONAS
+            (ID_PERSONA, NOMBRE, APELLIDOS, FECHA_NAC,ESTADO, MANZANA, ESTADO_ESPECIAL)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """
 
             valores = (
                 persona.id_persona,
                 persona.nombre,
                 persona.apellidos,
-                persona.estado_especial,
-                persona.manzana,
-                persona.estudia,
+                persona.fecha_nac,
                 persona.activo,
-                persona.fecha_nac
+                persona.manzana,
+                persona.estado_especial
+                
+                
             )
 
             cursor.execute(query, valores)
@@ -51,110 +52,111 @@ class TablaPersona(BaseDatos):
             # Rollback automático ocurre al salir del bloque try
             raise
 
-    def obtener_datos(self, indice,persona, conexion_db):
-        """
-        Hidrata un objeto Persona con datos desde la base de datos.
+    # def obtener_datos(self, indice,persona, conexion_db):
+    #     """
+    #     Hidrata un objeto Persona con datos desde la base de datos.
 
-        Args:
-            persona (Persona): Instancia vacía/parcial a hidratar
-            indice (str): ID de la persona a buscar
-            conexion_db (Conexion): Objeto para manejar la conexión
+    #     Args:
+    #         persona (Persona): Instancia vacía/parcial a hidratar
+    #         indice (str): ID de la persona a buscar
+    #         conexion_db (Conexion): Objeto para manejar la conexión
 
-        Returns:
-            Persona: La misma instancia recibida, ahora con datos cargados
-            None: Si no se encontró el registro
+    #     Returns:
+    #         Persona: La misma instancia recibida, ahora con datos cargados
+    #         None: Si no se encontró el registro
 
-        Raises:
-            ValueError: Si el objeto persona es None
-            sqlite3.Error: Para errores de base de datos
-        """
+    #     Raises:
+    #         ValueError: Si el objeto persona es None
+    #         sqlite3.Error: Para errores de base de datos
+    #     """
 
-        if not isinstance(indice, int):
-            raise TypeError("El valor de 'indice' debe ser un número entero.")
-        try:
+    #     if not isinstance(indice, int):
+    #         raise TypeError("El valor de 'indice' debe ser un número entero.")
+    #     try:
 
-            # Obtener la conexión y el cursor
-            conexion, cursor = conexion_db.conexion()
+    #         # Obtener la conexión y el cursor
+    #         conexion, cursor = conexion_db.conexion()
 
-            # Consulta SQL parametrizada
-            query = "SELECT nombre, apellidos, estado_especial, manzana, estudia, fecha_nacimiento FROM persona WHERE id = ?"
+    #         # Consulta SQL parametrizada
+    #         query = "SELECT nombre, apellidos, estado_especial, manzana, estudia, fecha_nacimiento FROM persona WHERE id = ?"
 
-            # Ejecutar la consulta
-            cursor.execute(query, (indice,))
+    #         # Ejecutar la consulta
+    #         cursor.execute(query, (indice,))
 
-            # Obtener los datos
-            datos = cursor.fetchone()
+    #         # Obtener los datos
+    #         datos = cursor.fetchone()
 
-            if not datos:
-                return None
-            # Llamar a crear_persona con los datos obtenidos
-            return persona(
-                nombre=datos[0],
-                apellidos=datos[1],
-                estado_especial=datos[2],
-                manzana=datos[3],
-                estudia=datos[4],
-                fecha_nac=datos[5],
-                id_persona = indice
-            )
+    #         if not datos:
+    #             return None
+    #         # Llamar a crear_persona con los datos obtenidos
+    #         return persona(
+    #             nombre=datos[0],
+    #             apellidos=datos[1],
+    #             estado_especial=datos[2],
+    #             manzana=datos[3],
+    #             estudia=datos[4],
+    #             fecha_nac=datos[5],
+    #             id_persona = indice
+    #         )
 
-        except sqlite3.Error as e:
-            print(f"Error al obtener datos: {e}")
-            raise
+    #     except sqlite3.Error as e:
+    #         print(f"Error al obtener datos: {e}")
+    #         raise
 
-    def agregar_muchos_datos(self, lista_personas, clase_persona, conn):
-        """
-        Agrega múltiples registros a la tabla 'persona' recibiendo datos en formato JSON/diccionario.
+    # def agregar_muchos_datos(self, lista_personas, clase_persona, conn):
+    #     """
+    #     Agrega múltiples registros a la tabla 'persona' recibiendo datos en formato JSON/diccionario.
 
-        :param lista_personas: Lista de diccionarios con los datos de las personas.
-                Formato esperado:
-                {
-                    'nombre': str,
-                    'apellidos': str,
-                    'estado_especial': int,
-                    'manzana': str,
-                    'estudia': int (0/1),
-                    'fecha_nac': str (formato yyyy-mm-dd)
-                }
-        :param clase_persona: Instancia de la clase Persona que contiene la lógica de formateo.
-        :param conn: Instancia de la clase Conexion.
-        :raises sqlite3.Error: Si ocurre un error durante la inserción.
-        """
-        conexion, cursor = conn.conexion()
-        # Definir la consulta SQL
-        query = """
-        INSERT INTO persona (
-            id,
-            nombre,
-            apellidos,
-            estado_especial,
-            manzana,
-            estudia,
-            activo,
-            fecha_nacimiento
-        ) VALUES (?,?, ?, ?, ?, ?, ?, ?)
-        """
-        valores = []
-        for persona_data in lista_personas:
-            # Configurar los datos usando el método de la clase Persona
-            persona = clase_persona(persona_data['nombre'],persona_data['apellidos'],persona_data["estado_especial"],
-                            persona_data['manzana'],persona_data['estudia'],persona_data['fecha_nacimiento']
-            )
-            # Preparar tupla de valores para la inserción
-            valores.append((
-                persona.id_persona,
-                persona.nombre,
-                persona.apellidos,
-                int(persona.estado_especial),
-                persona.manzana,
-                int(persona.estudia),  # Aseguramos que sea 0 o 1
-                int(persona.activo),   # Aseguramos que sea 0 o 1
-                persona.fecha_nac
-            ))
-        # Ejecutar la consulta con executemany
-        cursor.executemany(query, valores)
-        # Guardar los cambios
-        conn.guardar_cambios()
+    #     :param lista_personas: Lista de diccionarios con los datos de las personas.
+    #             Formato esperado:
+    #             {
+    #                 'nombre': str,
+    #                 'apellidos': str,
+    #                 'estado_especial': int,
+    #                 'manzana': str,
+    #                 'estudia': int (0/1),
+    #                 'fecha_nac': str (formato yyyy-mm-dd)
+    #             }
+    #     :param clase_persona: Instancia de la clase Persona que contiene la lógica de formateo.
+    #     :param conn: Instancia de la clase Conexion.
+    #     :raises sqlite3.Error: Si ocurre un error durante la inserción.
+    #     """
+    #     conexion, cursor = conn.conexion()
+    #     print()
+    #     # Definir la consulta SQL
+    #     query = """
+    #     INSERT INTO persona (
+    #         id,
+    #         nombre,
+    #         apellidos,
+    #         estado_especial,
+    #         manzana,
+    #         estudia,
+    #         activo,
+    #         fecha_nacimiento
+    #     ) VALUES (?,?, ?, ?, ?, ?, ?, ?)
+    #     """
+    #     valores = []
+    #     for persona_data in lista_personas:
+    #         # Configurar los datos usando el método de la clase Persona
+    #         persona = clase_persona(persona_data['nombre'],persona_data['apellidos'],persona_data["estado_especial"],
+    #                         persona_data['manzana'],persona_data['estudia'],persona_data['fecha_nacimiento']
+    #         )
+    #         # Preparar tupla de valores para la inserción
+    #         valores.append((
+    #             persona.id_persona,
+    #             persona.nombre,
+    #             persona.apellidos,
+    #             int(persona.estado_especial),
+    #             persona.manzana,
+    #             int(persona.estudia),  # Aseguramos que sea 0 o 1
+    #             int(persona.activo),   # Aseguramos que sea 0 o 1
+    #             persona.fecha_nac
+    #         ))
+    #     # Ejecutar la consulta con executemany
+    #     cursor.executemany(query, valores)
+    #     # Guardar los cambios
+    #     conn.guardar_cambios()
 
     def modificar_dato(self, objeto, conexion_db):
         """
@@ -179,23 +181,21 @@ class TablaPersona(BaseDatos):
         
         # Consulta SQL con campos editables (incluyendo activo)
         consulta_sql = """
-            UPDATE persona 
-            SET nombre = ?, 
-                apellidos = ?, 
-                estado_especial = ?, 
-                estudia = ?,
-                activo = ?
-            WHERE id = ?
+            UPDATE PERSONAS 
+            SET NOMBRE = ?, 
+                APELLIDOS = ?, 
+                ESTADO = ?,
+                ESTADO_ESPECIAL = ?
+            WHERE ID_PERSONA = ?
         """
         
         # Valores para la consulta (campos editables + ID para WHERE)
         valores = (
             objeto.nombre,
             objeto.apellidos,
-            objeto.estado_especial,
-            objeto.estudia,
             objeto.activo,  # Incluido según tu comentario
-            objeto.id_persona      # Solo para identificar el registro a actualizar
+            objeto.estado_especial,
+            objeto.id_persona     # Solo para identificar el registro a actualizar
         )
         
         # Ejecutar la consulta
@@ -292,11 +292,8 @@ class MostrarDatos:
         conexion, cursor = conexion_db.conexion()
 
         query = """
-        SELECT
-            id, nombre, apellidos, estado_especial,
-            manzana, estudia, activo, fecha_nacimiento
-        FROM persona
-        WHERE id = ?
+        SELECT * FROM PERSONAS
+        WHERE ID_PERSONA = ?
         """
         cursor.execute(query, (indice,))
         registro = cursor.fetchone()
@@ -304,16 +301,16 @@ class MostrarDatos:
         if not registro:
             print(f"\n⚠️ No se encontró persona con ID {indice}\n")
             return None
-        nombre_estado = estado.obtener_estado(registro[3], conexion_db)  # índice 3 para estado_especial
+        nombre_estado = estado.obtener_estado(registro[6], conexion_db)  # índice 3 para estado_especial
 
         datos = {
             'id': registro[0],
             'nombre_completo': f"{registro[1]} {registro[2]}",
-            'manzana': registro[4] or "No especificada",
-            'estado_especial': nombre_estado,
-            'estudia': "Sí" if registro[5] == 1 else "No",
-            'activo': "Activo" if registro[6] == 1 else "Inactivo",
-            'fecha_nacimiento': registro[7]
+            'fecha_nacimiento': registro[3],
+            'activo': "Activo" if registro[4] == 1 else "No",
+            'estudia': "No",
+            'manzana': registro[5] or "No especificada",
+            'estado_especial': nombre_estado
         }
         return datos
 
@@ -326,27 +323,38 @@ class MostrarDatos:
 
         Returns:
             list: Lista de diccionarios con los datos formateados de todas las personas
+
+            "agregar los numeros segun corresponde el orden de la base de datos id =0, nombre =2,"
         """
         # 1. Obtener conexión y ejecutar consulta
+        print ("band")
         conexion, cursor = conexion_db.conexion()
         cursor.execute("""
-            SELECT id, nombre, apellidos, estado_especial,
-                manzana, estudia, activo, fecha_nacimiento
-            FROM persona
+            SELECT ID_PERSONA, NOMBRE, APELLIDOS, FECHA_NAC, ESTADO,
+                MANZANA, ESTADO_ESPECIAL
+            FROM PERSONAS
         """)
-
+        print ("band2")
         registros = cursor.fetchall()
+        print(registros)
+        print("sE PASAN DE LANZA ")
         if not registros:
             print("No se encontraron registros en la tabla persona")
             return []
 
+        print ("band3")
+
         # 2. Procesar cada registro
         estado = TablaEstado()
         resultados = []
+        print ("band4")
 
         for registro in registros:
             # Obtener estado especial para cada registro
-            nombre_estado = estado.obtener_estado(registro[3], conexion_db)
+            print(f"Registro de ls persona en estado especial {registro[-1]}")
+            print(registro)
+            nombre_estado = estado.obtener_estado(registro[-1], conexion_db)
+            print ("band5")
             
             # Estructurar datos
             datos_persona = {
@@ -354,12 +362,13 @@ class MostrarDatos:
                 'nombre': registro[1],
                 'apellidos': registro[2],
                 'nombre_completo': f"{registro[1]} {registro[2]}",
-                'manzana': registro[4],
+                'manzana': registro[-2],
                 'estado_especial': nombre_estado,
-                'estudia': "Sí" if registro[5] == 1 else "No",
-                'activo': "Activo" if registro[6] == 1 else "Inactivo",
-                'fecha_nacimiento': registro[7]
+                'estudia': "Sí",
+                'activo': "Activo" if registro [4] == 1 else "Inactivo",
+                'fecha_nacimiento': registro[3]
             }
+            print ("band6")
             resultados.append(datos_persona)
         return resultados
 
@@ -384,9 +393,10 @@ class MostrarDatos:
         conexion, cursor = conn.conexion()
         query = """
         SELECT
-            id, nombre, apellidos, estado_especial,
-            manzana, estudia, activo, fecha_nacimiento
-        FROM persona
+        ID_PERSONA, NOMBRE, APELLIDOS, FECHA_NAC, ESTADO,
+        MANZANA, ESTADO_ESPECIAL
+            FROM PERSONAS
+
         WHERE id = ?
         """
 
@@ -402,17 +412,21 @@ load_dotenv()  # Carga las variables del .env
 
 
 def menu_mostrar():
-    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) 
+
+    conexion_bd = Conexion() 
+    print ("bandera1")
     visualizador = MostrarDatos()
-    
+    print ("bandera2")
     datos_bd = visualizador.mostrar_todos_los_datos(conexion_bd)
-    
+    print ("bandera3")
     conexion_bd.cerrar_conexion()
-    
+    print ("bandera4")
     return datos_bd
 
+    print("bande7")
+
 def obtener_registro(indice):
-    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) #Modificar las clases de persona para el id
+    conexion_bd = Conexion() #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
     
     persona = tabla_personas.obtener_datos(indice,Persona,conexion_bd)
@@ -432,7 +446,8 @@ def menu_modificar(datos):
         bool: True si la actualización fue exitosa, False si hubo error
 """
     # Conexión a la base de datos
-    conexion_bd = Conexion(os.getenv('DATABASE_PATH'))
+    print("bande2")
+    conexion_bd = Conexion()
     tabla_personas = TablaPersona()
     # Procesamiento de nombre y apellidos
     partes_nombre = datos["nombre_completo"].split()
@@ -470,14 +485,14 @@ def asignar_estado(estado):
 
 def menu_crear(lista_datos):
     print("Inicializando componentes...")
-    conexion_bd = Conexion(os.getenv('DATABASE_PATH')) #Modificar las clases de persona para el id
+    conexion_bd = Conexion() #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
     visualizador = MostrarDatos()
     #persona = Persona("juan", "Torres Morales", 2, "Centro", 0, "2002-02-19")
-
+    lista_datos["estudia"] = "1"
     persona = Persona(lista_datos["nombre"],lista_datos["apellidos"]
                     ,lista_datos['estado_especial'],lista_datos['manzana'],
-                    lista_datos['estudia'],lista_datos['fecha_nac'])
+                    lista_datos["estudia"], lista_datos['fecha_nac'])
 
     tabla_personas.agregar_dato(persona,conexion_bd)
 
@@ -527,7 +542,7 @@ if __name__ == "__main__":
     # EL METODO MODIFICAR NO FUNCIONA
     # --------------------------
     print("Inicializando componentes...")
-    conexion_bd = Conexion('base_datos/data_base.db') #Modificar las clases de persona para el id
+    conexion_bd = Conexion() #Modificar las clases de persona para el id
     tabla_personas = TablaPersona()
     visualizador = MostrarDatos()
     persona = Persona("juan", "Torres Morales", 2, "Centro", 0, "2002-02-19")

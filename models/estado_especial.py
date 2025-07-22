@@ -18,7 +18,7 @@ class TablaEstado:
             raise ValueError("El ID del estado no puede ser None")
             
         cursor = conn.conexion()[1]  # Obtiene el cursor
-        query = "SELECT nombre FROM estados_especiales WHERE id = ?"
+        query = "SELECT NOMBRE FROM ESTADO_ESPECIAL WHERE ID_ESTADO = ?"
         cursor.execute(query, (numero,))
         
         resultado = cursor.fetchone()

@@ -16,19 +16,24 @@ api_persona_bp = Blueprint('api_personas', __name__, url_prefix='/api')
 @api_persona_bp.route('/create_us', methods=['POST'])
 def registrar_persona():
     try:
+        print("band1")
         # Obtener los datos JSON enviados desde el frontend
         persona_json = request.get_json()
     
         # Verificar si se recibieron datos
+        print("band2")
         if not persona_json:
             return jsonify({'error': 'No se recibieron datos JSON'}), 400
+        print("band5")
         
         resultado = menu_crear(persona_json)
+        print("band6")
         
         if resultado:
             return jsonify({'Perfecto':"datos recibido correctamente"}), 200
     except Exception as e:
         # Manejar cualquier error inesperado
+        print(e)
         return jsonify({
             'status': 'error',
             'message': str(e)
@@ -44,6 +49,7 @@ def mostrar_persona():
         datos = menu_mostrar()  # Tu función que obtiene datos de la BD
         return jsonify({'Perfecto': datos}), 200
     except Exception as e:
+        print(e)
         return jsonify({
             'status': 'error',
             'message': str(e)
@@ -69,6 +75,7 @@ def actualizar_registro():
     if respuesta:
         return jsonify({'Perfecto':"datos actualizados correctamente"}), 200
     else:
+        print(str(Exception))
         return jsonify({
             'status': 'error',
             'message': str(Exception)
@@ -81,7 +88,7 @@ ERRORES estado_especial DEBE SER UN NUMERO AL IGUAL QUE estudia
 'manzana': 'Centro', 'estudia': 'No', 'fecha_nacimiento': '2002-02-19'}
 """
 
-panel = PanelControl(Conexion("base_datos/data_base.db"))
+panel = PanelControl(Conexion())
 @api_persona_bp.route('/dashboard')
 def panel_de_control(debugg):
     if debugg:

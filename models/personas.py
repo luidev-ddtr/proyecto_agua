@@ -94,6 +94,6 @@ class Persona:
             
         """
         # Determinar si la persona está activa
-        if (18 <= edad <= 65) and (self.estado_especial == 1) and (self.estudia == 0):
+        if (18 <= edad <= 65) and (self.estado_especial == 1):
             return 1
         return 0
