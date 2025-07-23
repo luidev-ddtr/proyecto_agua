@@ -1,20 +1,21 @@
 ---
-// src/components/FlechaBoton.astro
 export interface Props {
   texto: string;
   href: string;
+  posicion?: string; // ya no es necesario si usas flex bien
 }
 
-const { texto, href } = Astro.props;
+const { texto, href, posicion,} = Astro.props;
 ---
 
 <a 
   href={href}
-  class="w-full bg-white bg-opacity-90 hover:bg-opacity-100 py-4 px-6 rounded-xl transition-all duration-300 flex justify-between items-center shadow-lg"
+  class="w-full relative bg-white bg-opacity-90 hover:bg-opacity-100 py-4 px-6 rounded-xl transition-all duration-300 flex justify-center items-center space-x-3 shadow-lg"
 >
   <span class="text-lg font-medium text-gray-800">{texto}</span>
-  
-  <span class="h-8 w-8 rounded-full bg-amber-800 flex items-center justify-center shrink-0">
+
+  <!-- Icono (dentro del flujo, no absoluto) -->
+  <span class="h-8 w-8 rounded-full bg-amber-800 flex items-center justify-center">
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
       class="h-5 w-5 text-white" 

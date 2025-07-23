@@ -5,30 +5,32 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 ---
 
 <Layout>
-    <main class="min-h-screen relative">
-      <!-- Imagen de fondo corregida -->
-      <div class="absolute inset-0 bg-cover bg-center z-0"
-           style={`background-image: url('${BASE_URL}/puente1.webp')`}>
-        <div class="absolute inset-0 backdrop-brightness-50"></div>
-      </div>
+  <main class="min-h-screen relative">
+    <!-- Fondo -->
+    <div
+      class="absolute inset-0 bg-cover bg-center z-0"
+      style={`background-image: url('${BASE_URL}/puente1.webp')`}
+    >
+      <div class="absolute inset-0 backdrop-brightness-50"></div>
+    </div>
 
-        <!-- Contenedor izquierdo (50% ancho) -->
-        <div class="relative z-10 w-1/2 min-h-full p-8">
-          <!-- Contenedor centrado (dentro del 50%) -->
-          <div class="h-full flex flex-col justify-center items-center">
-            
-            <!-- Título (ancho completo del 50%) -->
-            <div class="w-full text-center mb-12">
-              <h1 class="text-5xl font-bold text-white drop-shadow-md">S.G. El Mandhó</h1>
-            </div>
-      
-            <!-- Botones (mitad del ancho del título y centrados) -->
-            <nav class="w-1/2 flex flex-col items-center space-y-6">
-              <!-- Botones corregidos -->
-              <FlechaBoton texto="usuarios" href={`${BASE_URL}/usuarios`} />
-              <FlechaBoton texto="pagos" href={`${BASE_URL}/pagos`} />
-            </nav>
-          </div>
+    <!-- Contenedor centrado -->
+    <div class="relative z-10 flex justify-center min-h-screen p-8">
+      <div class="w-full max-w-xl flex flex-col items-center h-full">
+        <!-- Título -->
+        <div class="w-full text-center mt-12 pt-10">
+          <h1 class="text-5xl font-bold text-white drop-shadow-md">S.G. El Mandhó</h1>
         </div>
-      </main>
+
+        <!-- Botones: más abajo y más separados -->
+        <nav class="flex justify-center items-center w-full mt-32 gap-x-20">
+          <FlechaBoton texto="Usuarios" href={`${BASE_URL}/usuarios`} />
+          <FlechaBoton texto="Pagos" href={`${BASE_URL}/pagos`} />
+        </nav>
+      </div>
+    </div>
+  </main>
 </Layout>
+
+
+

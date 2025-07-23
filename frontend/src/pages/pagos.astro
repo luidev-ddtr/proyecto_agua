@@ -5,27 +5,20 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 ---
 
 <Layout>
-    <main class="min-h-screen relative">
-      <div
-        class="absolute inset-0 bg-cover bg-center z-0"
-        style={`         background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('${BASE_URL}/puente1.webp');`}>
-        
-        <!-- Contenedor izquierdo (50% ancho) -->
-        <div class="relative z-10 w-1/2 min-h-full p-8">
-          <!-- Contenedor centrado (dentro del 50%) -->
-          <div class="h-full flex flex-col justify-center items-center">
-            <!-- Botones (mitad del ancho del título y centrados) -->
-            <nav class="w-1/2 flex flex-col items-center space-y-6">
-              <FlechaBoton texto="Agregar Registro" href={`${BASE_URL}/crud/pagos/agregar`}/>
-              
-              <FlechaBoton texto="Mostrar Registro" href={`${BASE_URL}/crud/pagos/listar`}/>
-              
-              <!-- <FlechaBoton texto="Editar Registro" href={`${BASE_URL}/crud/pagos/editar`} /> -->
-              
-              <div x-data="{ message: '¡Alpine funciona!' }" x-text="message"></div>
-            </nav>
-          </div>
-        </div>
+  <main class="min-h-screen relative">
+    <div
+      class="absolute inset-0 bg-cover bg-center z-0"
+      style={`background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('${BASE_URL}/puente1.webp');`}>
+      
+      <!-- Contenedor que centra todo -->
+      <div class="relative z-10 flex items-center justify-center min-h-screen p-8">
+        <!-- Botones centrados -->
+        <nav class="w-1/3 flex flex-col items-center space-y-6">
+          <FlechaBoton texto="Agregar Registro" href={`${BASE_URL}/crud/pagos/agregar`} />
+          <FlechaBoton texto="Mostrar Registro" href={`${BASE_URL}/crud/pagos/listar`} />
+          <FlechaBoton texto="Toma de agua" href={`${BASE_URL}/crud/pagos/tomaagua`}/>
+        </nav>
       </div>
-    </main>
+    </div>
+  </main>
 </Layout>
