@@ -22,3 +22,6 @@ class TomaAgua:
             "ubicacion": self.ubicacion,
             "usan_personas": self.usan_personas
         }
+
+    def __str__(self) -> str:
+        return f"TomaAgua(id_toma={self.id_toma}, ubicacion={self.ubicacion}, usan_personas={self.usan_personas})"

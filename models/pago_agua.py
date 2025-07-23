@@ -131,6 +131,9 @@ class Registro:
             self.estado_pago = estado_pago
             self.tarifa_pendiente = tarifa_pendiente  
             print("registro editar from models/pago_agua")
+        
+    def __str__(self):
+        return f"Registro: {self.id_registro}, Persona: {self.id_persona}, Tomas: {self.tomas_agua}, Año: {self.año}, Fecha: {self.fecha_pago}, Cantidad: {self.cantidad}, Estado: {self.estado_pago}, Tarifa: {self.tarifa_pendiente}"
 
     def generar_id(self):
         """Genera un ID único con formato simplificado: 3LETRASID-AÑO-CODIGO.
@@ -201,7 +204,7 @@ class CalculadoraCobro:
     ("usuario especial"), ("comercial/industrial")
     Se deben de tratar estos casos especiales
     """
-    def calcular_pago_unitario(self, cantidad, tomas_agua, estado = 0, tarifa_pendiente=None,):
+    def calcular_pago_unitario(self, cantidad, tomas_agua, estado = 0, tarifa_pendiente=None,):# -> tuple[Literal[1], Literal[0]] | tuple[Literal[0], Any]:
         """Calcula el pago unitario y devuelve el estado actualizado y el saldo pendiente.
         
         Args:
@@ -224,26 +227,30 @@ class CalculadoraCobro:
 
         # if tomas_agua > 1 and tarifa_pendiente is None: #para validar los casos en que el registro ya viene con tarifa pendiente 
         #     pago_anual = pago_anual * tomas_agua
-        pago_anual = 360
         # Lógica general
         if estado == 1:
             return 1, 0  # Pago ya completado
         
         elif estado == 0 and tarifa_pendiente is None: #Estado pendiente Si estado no existe se le asigna cero por defecto
-            
+            print("debbugenado cantidad 1")
             tarifa_pendiente = pago_anual
             
             tarifa_pendiente = tarifa_pendiente - cantidad
-            
+            print("debbugenado cantidad 2")
             if tarifa_pendiente <= 0:
+                print("debbugenado cantidad 3")
                 return 1, 0  # Pago completado
             else:
+                print("debbugenado cantidad 4")
                 return 0, tarifa_pendiente
             # Este se calcula cuando la tarifa pendiente ya existe para que no se tome el año
         else:
+            print("debbugenado cantidad 5")
             tarifa_pendiente = tarifa_pendiente - cantidad
             
             if tarifa_pendiente <= 0:
+                print("debbugenado cantidad 6")
                 return 1, 0  # Pago completado
             else:
+                print("debbugenado cantidad 7")
                 return 0, tarifa_pendiente
