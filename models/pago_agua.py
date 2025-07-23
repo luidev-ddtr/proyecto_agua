@@ -19,7 +19,7 @@ class TarifaPago:
         
         Args:
             año (int): Año para el cual se realizarán los cálculos.
-                       Nota: Actualmente el año no afecta el cálculo.
+            Nota: Actualmente el año no afecta el cálculo.
         """
         self._cobro_diario = 1  # Valor por defecto (1 peso por día)
         self._costo_servicio = self._calcular_costo_anual(0)
