@@ -53,7 +53,7 @@ class Toma:
         conexion_db.cerrar_conexion()
         
         if resultado:
-            return True
+            return resultado
         else:
             return False
         

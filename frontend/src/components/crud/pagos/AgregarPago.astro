@@ -1,556 +1,936 @@
 <div class="flex h-full w-full">
-  <!-- Contenedor de Búsqueda (60%) con fondo condicional -->
-  <div class="w-6/12 p-6" :class="{'bg-blue-700': hasSearched, 'bg-transparent': !hasSearched}">
-    <div 
-      x-data="{
-        searchTerm: '',
-        isLoading: false,
-        results: [],
-        error: null,
-        activeItem: null,
-        hasSearched: false,
+  <!-- Contenedor izquierdo (buscadores) -->
+  <div class="w-8/12 flex flex-col">
+    <!-- Contenedor de Búsqueda de Personas -->
+    <div class="w-full p-6" :class="{'bg-blue-700': hasSearched, 'bg-transparent': !hasSearched}">
+      <div x-data="searchComponent()" class="h-full flex flex-col">
+        <!-- Barra de búsqueda -->
+        <div class="relative mb-6 mt-4">
+          <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md border-2 border-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input 
+              type="text" 
+              x-model="searchTerm"
+              @input="searchTerm = $event.target.value"
+              placeholder="Buscar por nombre o manzana..."
+              class="flex-1 p-2 focus:outline-none text-gray-700"
+            >
+            <button 
+              x-show="searchTerm" 
+              @click="searchTerm = ''; results = []; activeItem = null; hasSearched = false;" 
+              class="p-2 text-gray-500 hover:text-gray-700 rounded-full"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
         
-        async search() {
-          if (!this.searchTerm || this.searchTerm.length < 2) {
-            this.results = [];
-            this.hasSearched = false;
-            return;
-          }
+        <!-- Resultados -->
+        <div x-show="hasSearched" class="flex-1 overflow-hidden" style="max-height: 40vh;">
+          <!-- Estados -->
+          <div x-show="isLoading" class="p-4 text-center text-gray-500 bg-white rounded-lg shadow mb-2">
+            Buscando...
+          </div>
           
-          this.isLoading = true;
-          this.error = null;
-          this.hasSearched = true;
+          <div x-show="error" class="p-4 text-center text-red-500 bg-white rounded-lg shadow mb-2" x-text="error"></div>
           
-          try {
-            const response = await fetch(`${window.API_ENDPOINT}/buscar_us?q=${encodeURIComponent(this.searchTerm)}`, {
-              credentials: 'include' // Añadido para incluir credenciales
-            });
-            
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({}));
-              throw new Error(errorData.message || `Error HTTP: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.status === 'error') {
-              throw new Error(data.message);
-            }
-            
-            this.results = (data.results || []).map(item => ({
-              id: item.id,
-              nombre_completo: item.data?.nombre_completo || '',
-              id_persona: item.id,
-              activo: item.selectable ? 'Activo' : 'Inactivo',
-              estudia: item.data?.estudia || 'No especificado',
-              estado_especial: item.data?.estado_especial || '',
-              fecha_nacimiento: item.data?.fecha_nacimiento || '',
-              manzana: item.data?.manzana || 'N/A',
-              selectable: item.selectable,
-              reason: item.reason || ''
-            }));
-            
-          } catch (err) {
-            console.error('Error en búsqueda:', err);
-            this.error = err.message;
-            this.results = [];
-            // Mostrar error al usuario
-            this.showNotification(err.message || 'Error en la búsqueda', 'error');
-          } finally {
-            this.isLoading = false;
-          }
-        },
+          <!-- Tabla -->
+          <template x-if="!isLoading && !error">
+            <div class="overflow-y-auto h-full bg-white rounded-lg shadow-lg border border-gray-200">
+              <table class="min-w-full">
+                <tbody class="divide-y divide-gray-200">
+                  <template x-for="persona in results" :key="persona.id">
+                    <tr 
+                      @click="selectItem(persona)" 
+                      class="cursor-pointer transition-all duration-200"
+                      :class="{
+                        'hover:bg-blue-100 hover:shadow-md': persona.selectable,
+                        'bg-blue-50': activeItem && activeItem.id === persona.id,
+                        'opacity-60': !persona.selectable
+                      }"
+                    >
+                      <td class="py-3 px-4">
+                        <div class="text-gray-800 font-medium" x-text="persona.nombre_completo"></div>
+                        <div class="text-xs text-gray-500" x-text="'ID: ' + persona.id_persona"></div>
+                      </td>
+                      <td class="py-3 px-4">
+                        <span class="px-3 py-1.5 inline-flex items-center text-xs font-semibold rounded-full border"
+                          :class="{
+                            'bg-green-100 text-green-800 border-green-200': persona.activo === 'Activo',
+                            'bg-red-100 text-red-800 border-red-200': persona.activo !== 'Activo'
+                          }"
+                          x-text="persona.activo">
+                        </span>
+                      </td>
+                      <td class="py-3 px-4 text-gray-600" x-text="persona.estudia"></td>
+                      <td class="py-3 px-4 text-gray-600" x-text="persona.estado_especial"></td>
+                      <td class="py-3 px-4 text-gray-600" x-text="formatDate(persona.fecha_nacimiento)"></td>
+                      <td class="py-3 px-4 text-gray-600" x-text="persona.manzana"></td>
+                    </tr>
+                  </template>
+                  
+                  <tr x-show="searchTerm && searchTerm.length > 1 && results.length === 0">
+                    <td colspan="6" class="py-4 text-center text-gray-500">
+                      No se encontraron resultados para "<span x-text="searchTerm"></span>"
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor de Búsqueda de Tomas -->
+    <div class="w-full p-6" :class="{'bg-blue-700': hasSearched, 'bg-transparent': !hasSearched}">
+      <div x-data="tomasSearchComponent()" class="h-full flex flex-col">
+        <!-- Barra de búsqueda -->
+        <div class="relative mb-6 mt-4">
+          <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md border-2 border-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input 
+              type="text" 
+              x-model="searchTerm"
+              @input="searchTerm = $event.target.value"
+              placeholder="Buscar por ID de toma, ubicación o personas asociadas..."
+              class="flex-1 p-2 focus:outline-none text-gray-700"
+            >
+            <button 
+              x-show="searchTerm" 
+              @click="searchTerm = ''; results = []; activeItem = null; hasSearched = false;" 
+              class="p-2 text-gray-500 hover:text-gray-700 rounded-full"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
         
-        selectItem(item) {
-          if (!item?.selectable) {
-            alert(item?.reason || 'Este usuario no está disponible');
-            return;
-          }
+        <!-- Resultados -->
+        <div x-show="hasSearched" class="flex-1 overflow-hidden" style="max-height: 40vh;">
+          <!-- Estados -->
+          <div x-show="isLoading" class="p-4 text-center text-gray-500 bg-white rounded-lg shadow mb-2">
+            Buscando tomas de agua...
+          </div>
           
-          const datosSeleccionados = {
-            nombre_completo: item.nombre_completo,
-            id: item.id_persona
-          };
+          <div x-show="error" class="p-4 text-center text-red-500 bg-white rounded-lg shadow mb-2" x-text="error"></div>
           
-          this.activeItem = item;
-          this.searchTerm = '';
+          <!-- Tabla de resultados -->
+          <template x-if="!isLoading && !error">
+            <div class="overflow-y-auto h-full bg-white rounded-lg shadow-lg border border-gray-200">
+              <table class="min-w-full">
+                <tbody class="divide-y divide-gray-200">
+                  <template x-for="toma in results" :key="toma.id">
+                    <tr 
+                      @click="selectItem(toma)" 
+                      class="cursor-pointer transition-all duration-200"
+                      :class="{
+                        'hover:bg-blue-100 hover:shadow-md': true,
+                        'bg-blue-50': activeItem && activeItem.id === toma.id
+                      }"
+                    >
+                      <td class="py-3 px-4">
+                        <div class="text-gray-800 font-medium" x-text="toma.data.ubicacion"></div>
+                        <div class="text-xs text-gray-500" x-text="'ID Toma: ' + toma.data.id_toma"></div>
+                      </td>
+                      <td class="py-3 px-4">
+                        <div class="text-gray-600" x-text="'Usan: ' + (toma.data.personas_usan || 'No especificado')"></div>
+                      </td>
+                    </tr>
+                  </template>
+                  
+                  <tr x-show="searchTerm && searchTerm.length > 1 && results.length === 0">
+                    <td colspan="2" class="py-4 text-center text-gray-500">
+                      No se encontraron tomas para "<span x-text="searchTerm"></span>"
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor del Formulario (derecha) -->
+  <div class="w-4/12 ml-4">
+    <div id="form-container" class="h-[calc(100vh-60px)] bg-[#035cb6] p-4 rounded-lg shadow-lg border border-gray-200 flex flex-col"
+        x-data="formComponent()">
+      <div :class="{ 'opacity-60': formDisabled, 'pointer-events-none': formDisabled }">
+        <h2 class="text-2xl font-bold mb-4 text-white text-center">Nuevo Registro</h2>
+
+        <form class="flex-1 space-y-4"> 
+          <!-- Nombre completo (solo lectura) -->
+        <div class="mb-4">
+          <label for="nombre_completo" class="block text-base font-medium text-white mb-1">Nombre completo*</label>
+          <div class="flex rounded-md shadow-sm h-10">
+            <input
+              type="text"
+              id="nombre_completo"
+              name="nombre_completo"
+              class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base px-3"
+              x-model="form.nombre_completo"
+              readonly
+            >
+            <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-300 px-3 text-gray-800 text-base font-medium">
+              ID: <span x-text="form.id_persona" class="ml-1"></span>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Sección de Información de Toma -->
+        
+          <h3 class="text-lg font-semibold text-white mb-3">Información de la Toma de Agua</h3>
+          
+          <!-- ID de Toma (solo lectura) -->
+          <div class="mb-3">
+            <label class="block text-base font-medium text-white mb-1">ID de Toma</label>
+            <div class="flex rounded-md shadow-sm h-10">
+              <input
+                type="text"
+                class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base px-3"
+                x-model="form.tomas"
+                readonly
+                placeholder="ID de toma seleccionada"
+              >
+            </div>
+          </div>
+          
+          <!-- Ubicación de Toma (solo lectura) -->
+          <div class="mb-3">
+            <label class="block text-base font-medium text-white mb-1">Ubicación</label>
+            <div class="flex rounded-md shadow-sm h-10">
+              <input
+                type="text"
+                class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base px-3"
+                x-model="form.tomas_ubicacion"
+                readonly
+                placeholder="Ubicación de la toma"
+              >
+            </div>
+          </div>
+          
+          <!-- Personas que usan la Toma (solo lectura) -->
+          <div class="mb-3">
+            <label class="block text-base font-medium text-white mb-1">Personas que usan esta toma</label>
+            <div class="flex rounded-md shadow-sm h-10">
+              <input
+                type="text"
+                class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base px-3"
+                x-model="form.personas_toma"
+                readonly
+                placeholder="Número de personas"
+              >
+              <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-300 px-3 text-gray-800 text-base font-medium">
+                personas
+              </span>
+            </div>
+          </div>
+
+        <!-- Año -->
+        <div class="mb-4">
+          <label for="anio" class="block text-base font-medium text-white mb-1">Año*</label>
+          <input
+            type="number"
+            id="anio"
+            name="anio"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-10 px-3"
+            x-model="form.anio"
+            @blur="validarAnio"
+            :disabled="formDisabled"
+            min="2015"
+            :max="new Date().getFullYear()"
+          >
+          <div 
+            x-show="errors.anio" 
+            x-transition
+            class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <span x-text="errors.anio"></span>
+          </div>
+        </div>
+
+          <!-- Fecha de pago -->
+          <div class="mb-4">
+            <label for="fecha_pago" class="block text-base font-medium text-white mb-1">Fecha de pago*</label>
+            <input
+              type="date"
+              id="fecha_pago"
+              name="fecha_pago"
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-10 px-3"
+              x-model="form.fecha_pago"
+              :disabled="formDisabled"
+            >
+          </div>
+
+          <!-- Cantidad a pagar -->
+          <div class="mb-4">
+            <label for="cantidad" class="block text-base font-medium text-white mb-1">Cantidad a pagar*</label>
+            <div class="relative rounded-md shadow-sm h-10">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-800 text-base">$</span>
+              </div>
+              <input
+                type="number"
+                id="cantidad"
+                name="cantidad"
+                class="block w-full pl-8 pr-14 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-full px-3"
+                placeholder="0"
+                x-model="form.cantidad"
+                @input="validarCantidad"
+                @keydown="(e) => {
+                  if (!/[0-9]/.test(e.key) && 
+                      !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }"
+                :disabled="formDisabled"
+                min="0"
+                max="1500"
+                step="50"
+              >
+              <div class="absolute inset-y-0 right-0 flex items-center space-x-px">
+                <button
+                  type="button"
+                  class="px-3 h-full bg-[#f3f4f6] text-[#1a4b8c] font-semibold rounded-l-md border border-gray-300 hover:bg-[#dbeafe] hover:text-[#1e3a8a] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#1a4b8c] disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="decrementarCantidad"
+                  :disabled="formDisabled || form.cantidad <= 0"
+                >
+                  -
+                </button>
+                <button
+                  type="button"
+                  class="px-3 h-full bg-[#f3f4f6] text-[#1a4b8c] font-semibold rounded-r-md border border-gray-300 hover:bg-[#dbeafe] hover:text-[#1e3a8a] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#1a4b8c] disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="incrementarCantidad"
+                  :disabled="formDisabled || form.cantidad >= 1500"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div 
+              x-show="errors.cantidad" 
+              x-transition
+              class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span x-text="errors.cantidad"></span>
+            </div>
+          </div>
+          
+          <!-- Botones -->
+          <div class="mt-6">
+            <button
+              type="button"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-950 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              :class="{ 
+                'opacity-50 cursor-not-allowed': formDisabled,
+                'bg-green-600': !formDisabled
+              }"
+              :disabled="formDisabled"
+              @click="submitForm"
+              @mouseover="console.log('Estado formulario:', {formDisabled, form, errors})"
+            >
+              Registrar pago
+            </button>
+
+            <span style="margin-right: 10px;"> </span>
+
+          <!-- Botón para generar el recibo en PDF -->
+            <button
+              type="button"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-950 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              :class="{ 
+                'opacity-50 cursor-not-allowed': formDisabled,
+                'bg-blue-700': isLoading
+              }"
+              :disabled="formDisabled || isLoading"
+              @click="generatePDF(form)"
+              x-data="pdfReciboGenerator()"
+            >
+              <span x-show="!isLoading">Generar recibo PDF</span>
+              <span x-show="isLoading" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generando...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script is:inline>
+// Función principal que contiene todo el componente
+function pdfReciboGenerator() {
+  // Cargamos jsPDF dinámicamente
+  const loadJsPDF = () => {
+    return new Promise((resolve, reject) => {
+      if (window.jspdf) {
+        resolve(window.jspdf);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = () => resolve(window.jspdf);
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  };
+
+  return {
+    formDisabled: true,
+    form: {
+      nombre_completo: '',
+      id_persona: '',
+      tomas: '',
+      tomas_ubicacion: '',
+      personas_toma: '',
+      anio: new Date().getFullYear(),
+      fecha_pago: new Date().toISOString().split('T')[0],
+      cantidad: 0
+    },
+    errors: {},
+    jsPDFLoaded: false,
+    pdfGenerating: false,
+
+    async init() {
+      try {
+        await loadJsPDF();
+        this.jsPDFLoaded = true;
+      } catch (error) {
+        console.error('Error al cargar jsPDF:', error);
+        this.showNotification('Error al cargar el generador de PDF', 'error');
+      }
+
+      // Tus otros event listeners aquí...
+      document.addEventListener('persona-seleccionada', (e) => {
+        if (!e.detail) return;
+        this.form.nombre_completo = e.detail.nombre_completo || '';
+        this.form.id_persona = e.detail.id || '';
+        this.formDisabled = false;
+      });
+      
+      document.addEventListener('toma-seleccionada', (e) => {
+        if (!e.detail) return;
+        this.form.tomas = e.detail.id_tomas || '';
+        this.form.tomas_ubicacion = e.detail.ubicacion || '';
+        this.form.personas_toma = e.detail.personas_usan || '';
+      });
+    },
+
+    // Función para generar el PDF
+    async generatePDF() {
+      if (!this.jsPDFLoaded) {
+        this.showNotification('El generador de PDF no está disponible', 'error');
+        return;
+      }
+
+      this.pdfGenerating = true;
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        // Configuración del documento (igual que antes)
+        const primaryColor = '#1e3a8a';
+        
+        doc.setFontSize(20);
+        doc.setTextColor(primaryColor);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RECIBO DE PAGO', 105, 30, { align: 'center' });
+        
+        // ... (resto del código para generar el PDF)
+        
+        doc.save(`recibo_${this.form.nombre_completo.split(' ')[0]}_${Date.now()}.pdf`);
+        
+      } catch (error) {
+        console.error('Error al generar PDF:', error);
+        this.showNotification('Error al generar el PDF', 'error');
+      } finally {
+        this.pdfGenerating = false;
+      }
+    },
+
+    // Modifica tu función submitForm para usar generatePDF
+    async submitForm() {
+      // Validaciones previas...
+      
+      try {
+        // Tu lógica de envío del formulario...
+        
+        // Generar el PDF después de enviar el formulario
+        await this.generatePDF();
+        
+        this.showNotification('Pago registrado y recibo generado', 'success');
+        this.resetForm();
+        
+      } catch (error) {
+        console.error('Error:', error);
+        this.showNotification(error.message || 'Error al procesar la solicitud', 'error');
+      }
+    },
+
+    // ... (mantén el resto de tus funciones existentes)
+  };
+}
+
+function searchComponent() {
+  return {
+    searchTerm: '',
+    isLoading: false,
+    results: [],
+    error: null,
+    activeItem: null,
+    hasSearched: false,
+    
+    async search() {
+      if (!this.searchTerm || this.searchTerm.length < 2) {
+        this.results = [];
+        this.hasSearched = false;
+        return;
+      }
+      
+      this.isLoading = true;
+      this.error = null;
+      this.hasSearched = true;
+      
+      try {
+        const response = await fetch(`${window.API_ENDPOINT}/buscar_us?q=${encodeURIComponent(this.searchTerm)}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'error') {
+          throw new Error(data.message);
+        }
+        
+        this.results = (data.results || []).map(item => ({
+          id: item.id,
+          nombre_completo: item.data?.nombre_completo || '',
+          id_persona: item.id,
+          activo: item.selectable ? 'Activo' : 'Inactivo',
+          estudia: item.data?.estudia || 'No especificado',
+          estado_especial: item.data?.estado_especial || '',
+          fecha_nacimiento: item.data?.fecha_nacimiento || '',
+          manzana: item.data?.manzana || 'N/A',
+          selectable: item.selectable,
+          reason: item.reason || ''
+        }));
+        
+      } catch (err) {
+        console.error('Error en búsqueda:', err);
+        this.error = err.message;
+        this.results = [];
+        this.showNotification(err.message || 'Error en la búsqueda', 'error');
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
+    selectItem(item) {
+      if (!item?.selectable) {
+        alert(item?.reason || 'Este usuario no está disponible');
+        return;
+      }
+      
+      const datosSeleccionados = {
+        nombre_completo: item.nombre_completo,
+        id: item.id_persona
+      };
+      
+      this.activeItem = item;
+      this.searchTerm = '';
+      this.results = [];
+      this.hasSearched = false;
+      
+      document.dispatchEvent(new CustomEvent('persona-seleccionada', { 
+        detail: datosSeleccionados
+      }));
+    },
+    
+    formatDate(dateString) {
+      if (!dateString) return '';
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES');
+      } catch {
+        return dateString;
+      }
+    },
+    
+    showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+      } z-50`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    },
+    
+    init() {
+      const debouncedSearch = Alpine.debounce(() => this.search(), 300);
+      
+      this.$watch('searchTerm', (value) => {
+        if (value && value.length >= 2) {
+          debouncedSearch();
+        } else {
           this.results = [];
           this.hasSearched = false;
-          
-          document.dispatchEvent(new CustomEvent('persona-seleccionada', { 
-            detail: datosSeleccionados
-          }));
-        },
-        
-        formatDate(dateString) {
-          if (!dateString) return '';
-          try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('es-ES');
-          } catch {
-            return dateString;
-          }
         }
-      }"
-      x-init="function() {
-        const debouncedSearch = Alpine.debounce(() => this.search(), 300);
-        
-        this.$watch('searchTerm', (value) => {
-          if (value && value.length >= 2) {
-            debouncedSearch();
-          } else {
-            this.results = [];
-            this.hasSearched = false;
-          }
-        });
-      }"
-      class="h-full flex flex-col"
-    >
-      <!-- Barra de búsqueda con contorno visible siempre -->
-      <div class="relative mb-6 mt-4">
-        <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md border-2 border-blue-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input 
-            type="text" 
-            x-model="searchTerm"
-            @input="searchTerm = $event.target.value"
-            placeholder="Buscar por nombre o manzana..."
-            class="flex-1 p-2 focus:outline-none text-gray-700"
-          >
-          <button 
-            x-show="searchTerm" 
-            @click="searchTerm = ''; results = []; activeItem = null; hasSearched = false;" 
-            class="p-2 text-gray-500 hover:text-gray-700 rounded-full"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-      <!--  barra de busqueda para id de toma de agua -->
-        <div class="relative mb-6 mt-4">
-        <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md border-2 border-blue-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input 
-            type="text" 
-            x-model="searchTerm"
-            @input="searchTerm = $event.target.value"
-            placeholder="Buscar ID de toma de agua..."
-            class="flex-1 p-2 focus:outline-none text-gray-700"
-          >
-          <button 
-            x-show="searchTerm" 
-            @click="searchTerm = ''; results = []; activeItem = null; hasSearched = false;" 
-            class="p-2 text-gray-500 hover:text-gray-700 rounded-full"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-      <!-- Contenedor de resultados (solo visible cuando hay búsqueda) -->
-      <div x-show="hasSearched" class="flex-1 overflow-hidden">
-        <!-- Estados -->
-        <div x-show="isLoading" class="p-4 text-center text-gray-500 bg-white rounded-lg shadow mb-2">
-          Buscando...
-        </div>
-        
-        <div x-show="error" class="p-4 text-center text-red-500 bg-white rounded-lg shadow mb-2" x-text="error"></div>
-        
-        <!-- Tabla -->
-        <template x-if="!isLoading && !error">
-          <div class="overflow-y-auto h-full bg-white rounded-lg shadow-lg border border-gray-200">
-            <table class="min-w-full">
-              <tbody class="divide-y divide-gray-200">
-                <template x-for="persona in results" :key="persona.id">
-                  <tr 
-                    @click="selectItem(persona)" 
-                    class="cursor-pointer transition-all duration-200"
-                    :class="{
-                      'hover:bg-blue-100 hover:shadow-md': persona.selectable,
-                      'bg-blue-50': activeItem && activeItem.id === persona.id,
-                      'opacity-60': !persona.selectable
-                    }"
-                  >
-                    <td class="py-3 px-4">
-                      <div class="text-gray-800 font-medium" x-text="persona.nombre_completo"></div>
-                      <div class="text-xs text-gray-500" x-text="'ID: ' + persona.id_persona"></div>
-                    </td>
-                    <td class="py-3 px-4">
-                      <span class="px-3 py-1.5 inline-flex items-center text-xs font-semibold rounded-full border"
-                        :class="{
-                          'bg-green-100 text-green-800 border-green-200': persona.activo === 'Activo',
-                          'bg-red-100 text-red-800 border-red-200': persona.activo !== 'Activo'
-                        }"
-                        x-text="persona.activo">
-                      </span>
-                    </td>
-                    <td class="py-3 px-4 text-gray-600" x-text="persona.estudia"></td>
-                    <td class="py-3 px-4 text-gray-600" x-text="persona.estado_especial"></td>
-                    <td class="py-3 px-4 text-gray-600" x-text="formatDate(persona.fecha_nacimiento)"></td>
-                    <td class="py-3 px-4 text-gray-600" x-text="persona.manzana"></td>
-                  </tr>
-                </template>
-                
-                <tr x-show="searchTerm && searchTerm.length > 1 && results.length === 0">
-                  <td colspan="6" class="py-4 text-center text-gray-500">
-                    No se encontraron resultados para "<span x-text="searchTerm"></span>"
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </template>
-      </div>
-    </div>
-  </div>
-  <!-- contendor vacio estetico -->
-  <div class="w-2/12 ml-4"></div>
+      });
+    }
+  };
+}
 
-  <!-- Contenedor del Formulario (40%) -->
-  <div class="w-4/12 ml-4">
-<div id="form-container" class="h-[calc(100vh-60px)] bg-[#035cb6] p-4 rounded-lg shadow-lg border border-gray-200 flex flex-col"
-         x-data="{
-           formDisabled: true,
-           form: {
-             nombre_completo: '',
-             id_persona: '',
-             tomas: '',
-             anio: new Date().getFullYear(),
-             fecha_pago: new Date().toISOString().split('T')[0],
-             cantidad: 0
-           },
-           errors: {
-             tomas: '',
-             anio: '',
-             cantidad: ''
-           },
-           
-           // Métodos adicionales
-           init() {
-             // Escuchar evento de selección de persona
-             document.addEventListener('persona-seleccionada', (e) => {
-               this.form.nombre_completo = e.detail.nombre_completo;
-               this.form.id_persona = e.detail.id;
-               this.formDisabled = false;
-             });
-           },
-           
-           validarTomas() {
-             if (!this.form.tomas) {
-               this.errors.tomas = 'Seleccione el número de tomas';
-               return false;
-             }
-             this.errors.tomas = '';
-             return true;
-           },
-           
-           validarAnio() {
-             const currentYear = new Date().getFullYear();
-             if (this.form.anio > currentYear) {
-               this.errors.anio = 'No puede ser año futuro';
-               return false;
-             }
-             if (this.form.anio < currentYear - 10) {
-               this.errors.anio = 'Máximo 10 años de antigüedad';
-               return false;
-             }
-             this.errors.anio = '';
-             return true;
-           },
-           
-           validarCantidad() {
-  // Convertir a número entero (por si acaso viene como string)
-  this.form.cantidad = parseInt(this.form.cantidad);
-  
-  // Verificar si es un número válido
-  if (isNaN(this.form.cantidad)) {
-    this.errors.cantidad = 'Debe ingresar un número válido';
-    this.form.cantidad = 0; // Resetear a 0 si no es número
-    return false;
-  }
-  
-  // Verificar que sea entero positivo
-  if (this.form.cantidad < 0 || this.form.cantidad > 1500 || !Number.isInteger(this.form.cantidad)) {
-    this.errors.cantidad = 'Debe ser un número entero entre 0 y 1500';
-    this.form.cantidad = Math.max(0, Math.min(1500, Math.floor(this.form.cantidad))); // Asegurar que esté en el rango
-    return false;
-  }
-  
-  this.errors.cantidad = '';
-  return true;
-},
-
-incrementarCantidad() {
-  // Asegurarnos de que sea un número entero
-  this.form.cantidad = parseInt(this.form.cantidad) || 0;
-  
-  if (this.form.cantidad + 50 <= 1500) {
-    this.form.cantidad += 50;
-  } else {
-    this.form.cantidad = 1500; // No permitir pasar el límite
-  }
-  this.validarCantidad();
-},
-
-decrementarCantidad() {
-  // Asegurarnos de que sea un número entero
-  this.form.cantidad = parseInt(this.form.cantidad) || 0;
-  
-  if (this.form.cantidad - 50 >= 0) {
-    this.form.cantidad -= 50;
-  } else {
-    this.form.cantidad = 0; // No permitir valores negativos
-  }
-  this.validarCantidad();
-},
-           
-            async submitForm() {
-          // Validar todos los campos
-          const isValid = this.validarTomas() && this.validarAnio() && this.validarCantidad();
-          
-          if (!isValid) {
-            return;
-          }
-          
-          const formData = {
-            id_persona: this.form.id_persona,
-            nombre_completo: this.form.nombre_completo,
-            tomas: this.form.tomas,
-            anio: this.form.anio,
-            fecha_pago: this.form.fecha_pago,
-            cantidad: this.form.cantidad
-          };
-          
-          try {
-            const response = await fetch(`${window.API_ENDPOINT}/create_pay`, {
-              method: 'POST',
-              credentials: 'include', // Añadido para incluir credenciales
-              headers: {
-                'Content-Type': 'application/json', // Añadido header para POST
-              },
-              body: JSON.stringify(formData)
-            });
-            
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({}));
-              throw new Error(errorData.message || `Error HTTP: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log('Respuesta:', data);
-            this.showNotification(data.message || 'Pago registrado exitosamente', 'success');
-            
-            // Resetear formulario
-            this.formDisabled = true;
-            this.form = {
-              nombre_completo: '',
-              id_persona: '',
-              tomas: '',
-              anio: new Date().getFullYear(),
-              fecha_pago: new Date().toISOString().split('T')[0],
-              cantidad: 0
-            };
-          } catch (error) {
-            console.error('Error:', error);
-            this.showNotification(error.message || 'Error al registrar el pago', 'error');
-          }
-        },
-           
-           showNotification(message, type = 'success') {
-             const notification = document.createElement('div');
-             notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
-               type === 'success' ? 'bg-green-500' : 'bg-red-500'
-             } z-50`;
-             notification.textContent = message;
-             document.body.appendChild(notification);
-             
-             setTimeout(() => {
-               notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-               setTimeout(() => notification.remove(), 300);
-             }, 3000);
-           }
-         }"
-         <div :class="{ 'opacity-60': formDisabled, 'pointer-events-none': formDisabled }">
-
-          <h2 class="text-2xl font-bold mb-4 text-white text-center">Nuevo Registro</h2>
-
-  <form class="flex-1 space-y-4"> 
-    <!-- Nombre completo (solo lectura) -->
-    <div class="mb-4">
-      <label for="nombre_completo" class="block text-base font-medium text-white mb-1">Nombre completo*</label>
-      <div class="flex rounded-md shadow-sm h-10">
-        <input
-          type="text"
-          id="nombre_completo"
-          name="nombre_completo"
-          class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base px-3"
-          x-model="form.nombre_completo"
-          readonly
-        >
-        <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-300 px-3 text-gray-800 text-base font-medium">
-          ID: <span x-text="form.id_persona" class="ml-1"></span>
-        </span>
-      </div>
-    </div>
-
-    <!-- Tomas de agua -->
-    <!--div class="mb-4">
-      <label for="tomas" class="block text-base font-medium text-white mb-1">Tomas de agua*</label>
-      <select
-        id="tomas"
-        name="tomas"
-        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-10 px-3"
-        x-model="form.tomas"
-        @change="validarTomas"
-        :disabled="formDisabled"
-      >
-        <option value="">Seleccione...</option>
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-      </select>
-      <div 
-        x-show="errors.tomas" 
-        x-transition
-        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
-        <span x-text="errors.tomas"></span>
-      </div>
-    </div-->
-
-    <!-- Año -->
-    <div class="mb-4">
-      <label for="anio" class="block text-base font-medium text-white mb-1">Año*</label>
-      <input
-        type="number"
-        id="anio"
-        name="anio"
-        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-10 px-3"
-        x-model="form.anio"
-        @blur="validarAnio"
-        :disabled="formDisabled"
-        min="2015"
-        :max="new Date().getFullYear()"
-      >
-      <div 
-        x-show="errors.anio" 
-        x-transition
-        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
-        <span x-text="errors.anio"></span>
-      </div>
-    </div>
-
-    <!-- Fecha de pago -->
-    <div class="mb-4">
-      <label for="fecha_pago" class="block text-base font-medium text-white mb-1">Fecha de pago*</label>
-      <input
-        type="date"
-        id="fecha_pago"
-        name="fecha_pago"
-        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-10 px-3"
-        x-model="form.fecha_pago"
-        :disabled="formDisabled"
-      >
-    </div>
-
-    <!-- Cantidad a pagar -->
-    <div class="mb-4">
-      <label for="cantidad" class="block text-base font-medium text-white mb-1">Cantidad a pagar*</label>
-      <div class="relative rounded-md shadow-sm h-10">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <span class="text-gray-800 text-base">$</span>
-        </div>
-        <input
-          type="number"
-          id="cantidad"
-          name="cantidad"
-          class="block w-full pl-8 pr-14 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-200 text-gray-800 text-base h-full px-3"
-          placeholder="0"
-          x-model="form.cantidad"
-          @input="validarCantidad"
-          @keydown="(e) => {
-            if (!/[0-9]/.test(e.key) && 
-                !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-              e.preventDefault();
-            }
-          }"
-          :disabled="formDisabled"
-          min="0"
-          max="1500"
-          step="50"
-        >
-        <div class="absolute inset-y-0 right-0 flex items-center space-x-px">
-          <button
-            type="button"
-            class="px-3 h-full bg-[#f3f4f6] text-[#1a4b8c] font-semibold rounded-l-md border border-gray-300 hover:bg-[#dbeafe] hover:text-[#1e3a8a] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#1a4b8c] disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="decrementarCantidad"
-            :disabled="formDisabled || form.cantidad <= 0"
-          >
-            -
-          </button>
-          <button
-            type="button"
-            class="px-3 h-full bg-[#f3f4f6] text-[#1a4b8c] font-semibold rounded-r-md border border-gray-300 hover:bg-[#dbeafe] hover:text-[#1e3a8a] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#1a4b8c] disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="incrementarCantidad"
-            :disabled="formDisabled || form.cantidad >= 1500"
-          >
-            +
-        </button>
-        </div>
-      </div>
-      <div 
-        x-show="errors.cantidad" 
-        x-transition
-        class="mt-1 px-2 py-1 rounded text-[#FFE6B3] bg-[#1a4b8c] text-sm font-medium flex items-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
-        <span x-text="errors.cantidad"></span>
-      </div>
-    </div>
-     
+function tomasSearchComponent() {
+  return {
+    searchTerm: '',
+    isLoading: false,
+    results: [],
+    error: null,
+    hasSearched: false,
+    activeItem: null, // Asegúrate de tener esta propiedad
     
-    <!-- Botón de enviar -->
-    <div class="mt-6">
-      <button
-        type="button"
-        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-950 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-        :class="{ 'opacity-50 cursor-not-allowed': formDisabled }"
-        :disabled="formDisabled"
-        @click="submitForm"
-      >
-        Registrar pago
-      </button>
+    async search() {
+      if (!this.searchTerm || this.searchTerm.length < 2) {
+        this.results = [];
+        this.hasSearched = false;
+        return;
+      }
+      
+      this.isLoading = true;
+      this.error = null;
+      this.hasSearched = true;
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/buscar_toma?q=${encodeURIComponent(this.searchTerm)}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        console.log("Datos del backend:", data.results); // Para depuración
+        
+        if (data.status === 'error') {
+          throw new Error(data.message);
+        }
+        
+        this.results = (data.results || []).map(item => ({
+          id: item.id,
+          text: item.text,
+          data: {
+            ubicacion: item.data?.ubicacion || '',
+            id_toma: item.data?.id_tomas || '',  // Cambiado a id_tomas
+            personas_usan: item.data?.personas_usan || 0  // Cambiado a personas_usan
+          },
+          selectable: item.selectable
+        }));
+        
+      } catch (err) {
+        console.error('Error en búsqueda de tomas:', err);
+        this.error = err.message;
+        this.results = [];
+        this.showNotification(err.message || 'Error en la búsqueda de tomas', 'error');
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
+    selectItem(item) {
+      if (!item?.selectable) {
+        alert('Esta toma no está disponible');
+        return;
+      }
+      
+      const datosSeleccionados = {
+        id_tomas: item.data.id_toma || item.data.id_tomas, // Asegura que usamos id_tomas
+        ubicacion: item.data.ubicacion,
+        personas_usan: item.data.personas_usan,
+        id: item.id
+      };
+      
+      this.activeItem = item;
+      this.searchTerm = '';
+      this.results = [];
+      this.hasSearched = false;
+      
+      document.dispatchEvent(new CustomEvent('toma-seleccionada', { 
+        detail: datosSeleccionados
+      }));
+    },
+    
+    showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+      } z-50`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    },
+    
+    init() {
+      const debouncedSearch = Alpine.debounce(() => this.search(), 300);
+      
+      this.$watch('searchTerm', (value) => {
+        if (value && value.length >= 2) {
+          debouncedSearch();
+        } else {
+          this.results = [];
+          this.hasSearched = false;
+        }
+      });
+    }
+  };
+}
 
-      <span style="margin-right: 10px;"> </span>
+function formComponent() {
+  return {
+    formDisabled: true,
+    form: {
+      nombre_completo: '',
+      id_persona: '',
+      tomas: '',
+      tomas_ubicacion: '',
+      personas_toma: '',
+      anio: new Date().getFullYear(),
+      fecha_pago: new Date().toISOString().split('T')[0],
+      cantidad: 0
+    },
+    errors: {
+      tomas: '',
+      anio: '',
+      fecha_pago: '',
+      cantidad: ''
+    },
+    
+    init() {
+      document.addEventListener('persona-seleccionada', (e) => {
+        if (!e.detail) return;
+        this.form.nombre_completo = e.detail.nombre_completo || '';
+        this.form.id_persona = e.detail.id || '';
+        this.formDisabled = false;
+      });
+      
+      document.addEventListener('toma-seleccionada', (e) => {
+        if (!e.detail) return;
+        this.form.tomas = e.detail.id_tomas || '';
+        this.form.tomas_ubicacion = e.detail.ubicacion || '';
+        this.form.personas_toma = e.detail.personas_usan || '';
+      });
+    },
+    
+    // Validación para el campo tomas (selección de toma de agua)
+    validarTomas() {
+      const isValid = !!this.form.tomas;
+      this.errors.tomas = isValid ? '' : 'Debe seleccionar una toma de agua';
+      return isValid;
+    },
+    
+    // Validación para el campo año
+    validarAnio() {
+      const currentYear = new Date().getFullYear();
+      const year = parseInt(this.form.anio);
+      
+      if (isNaN(year)) {
+        this.errors.anio = 'El año debe ser un número válido';
+        return false;
+      }
+      
+      if (year > currentYear) {
+        this.errors.anio = 'No puede ser un año futuro';
+        return false;
+      }
+      
+      if (year < currentYear - 10) {
+        this.errors.anio = 'Máximo 10 años de antigüedad';
+        return false;
+      }
+      
+      this.errors.anio = '';
+      return true;
+    },
+    
+    // Validación para la fecha de pago
+    validarFechaPago() {
+      if (!this.form.fecha_pago) {
+        this.errors.fecha_pago = 'La fecha de pago es requerida';
+        return false;
+      }
+      
+      const fechaPago = new Date(this.form.fecha_pago);
+      const hoy = new Date();
+      
+      if (fechaPago > hoy) {
+        this.errors.fecha_pago = 'La fecha no puede ser futura';
+        return false;
+      }
+      
+      this.errors.fecha_pago = '';
+      return true;
+    },
+    
+    // Validación para la cantidad a pagar
+    validarCantidad() {
+      const cantidad = parseInt(this.form.cantidad);
+      
+      if (isNaN(cantidad)) {
+        this.errors.cantidad = 'Debe ingresar un número válido';
+        this.form.cantidad = 0;
+        return false;
+      }
+      
+      if (cantidad <= 0) {
+        this.errors.cantidad = 'La cantidad debe ser mayor a 0';
+        this.form.cantidad = 0;
+        return false;
+      }
+      
+      if (cantidad > 1500) {
+        this.errors.cantidad = 'El monto máximo es $1500';
+        this.form.cantidad = 1500;
+        return false;
+      }
+      
+      this.errors.cantidad = '';
+      return true;
+    },
 
-      <button
-        type="button"
-        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-950 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-        :class="{ 'opacity-50 cursor-not-allowed': formDisabled }"
-        :disabled="formDisabled"
-        @click="submitForm"
-      >
-        Generar recibo
-      </button>
-    </div>
-  </form>
-</div>
-  </div>
+    // Métodos para incrementar/decrementar cantidad
+    incrementarCantidad() {
+      this.form.cantidad = Math.min((parseInt(this.form.cantidad) || 0) + 50, 1500);
+      this.validarCantidad();
+    },
+
+    decrementarCantidad() {
+      this.form.cantidad = Math.max((parseInt(this.form.cantidad) || 0) - 50, 0);
+      this.validarCantidad();
+    },
+    
+    // Método para enviar el formulario
+    async submitForm() {
+      // Ejecutar todas las validaciones
+      const validoTomas = this.validarTomas();
+      const validoAnio = this.validarAnio();
+      const validoFecha = this.validarFechaPago();
+      const validoCantidad = this.validarCantidad();
+      
+      if (!validoTomas || !validoAnio || !validoFecha || !validoCantidad) {
+        this.showNotification('Por favor complete todos los campos requeridos correctamente', 'error');
+        return;
+      }
+      
+      try {
+        const formData = {
+          id_persona: this.form.id_persona,
+          nombre_completo: this.form.nombre_completo,
+          tomas: this.form.tomas,
+          anio: this.form.anio,
+          fecha_pago: this.form.fecha_pago,
+          cantidad: this.form.cantidad
+        };
+        
+        const response = await fetch(`${window.API_ENDPOINT}/create_pay`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        this.showNotification(data.message || 'Pago registrado exitosamente', 'success');
+        this.resetForm();
+        
+      } catch (error) {
+        console.error('Error:', error);
+        this.showNotification(error.message || 'Error al registrar el pago', 'error');
+      }
+    },
+    
+    // Método para resetear el formulario
+    resetForm() {
+      this.formDisabled = true;
+      this.form = {
+        nombre_completo: '',
+        id_persona: '',
+        tomas: '',
+        tomas_ubicacion: '',
+        personas_toma: '',
+        anio: new Date().getFullYear(),
+        fecha_pago: new Date().toISOString().split('T')[0],
+        cantidad: 0
+      };
+      this.errors = {
+        tomas: '',
+        anio: '',
+        fecha_pago: '',
+        cantidad: ''
+      };
+    },
+    
+    // Método para mostrar notificaciones
+    showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+      } z-50`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+  };
+}
+</script>

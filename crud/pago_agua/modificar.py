@@ -1,7 +1,7 @@
 #clase para modificar a los registros de pago 
 import datetime
 class Modificate_register:
-    def modificar_dato(self, objeto, conexion_db):
+    def modificar_dato(self, objeto, conexion_db) -> bool:
         """
         Modifica los datos editables de una persona en la base de datos.
         

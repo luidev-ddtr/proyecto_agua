@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from crud.personas.persona import menu_mostrar
-from crud.pago_agua.menu import crear,mostrar, modificar
+from crud.pago_agua.menu import crear ,mostrar, modificar
 
 #Seguridad
 #from routes.security import token_required
@@ -56,7 +56,6 @@ def busqueda_tiempo_real():
 print("banpago1")
 
 @api_pago_bp.route('/create_pay', methods=['POST'])
-
 def registrar_pago():
     try:
         # Obtener los datos JSON enviados desde el frontend

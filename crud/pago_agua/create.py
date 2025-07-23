@@ -3,15 +3,17 @@ from models.pago_agua import Registro
 from utils.nucleo import Conexion
 
 class Create:
-    def agregar_registro(self, registro, conexion_bd):
+    def agregar_registro(self, registro, conexion_bd) -> bool:
         """Metodo para introducir registros a la base de datos"""
         conexion, cursor = conexion_bd.conexion()
         
         query = """
         INSERT INTO PAGO_AGUA 
         (ID_PAGO, ID_PERSONA, ID_TOMA, ESTADO_PAGO, CANTIDAD, ANIO, FECHA, TARIFA_PENDIENTE)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)               
         """
+        print("Datos en el objeto antes de enviarse a la bd")
+        print(registro.__str__())
         print("bander1")
         valores = (
             registro.id_registro,

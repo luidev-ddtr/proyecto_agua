@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 
-from crud.personas.persona import menu_mostrar
 from crud.tomas.toma import Toma
 
 #Seguridad
@@ -11,44 +10,42 @@ handler = Toma()
 api_toma_bp = Blueprint('api_tomas', __name__, url_prefix='/api')
 
 
-@api_toma_bp.route("/buscar_us", methods=["GET"])
-
+@api_toma_bp.route("/buscar_toma", methods=["GET"])
 def busqueda_tiempo_real():# -> tuple[Any, Literal[200]] | Any | tuple[Any, Literal[500]]:
     search_term = request.args.get('q', '').lower().strip()
     if not search_term or len(search_term) < 3:
         return jsonify({'results': [], 'message': 'Ingrese mínimo 3 caracteres'}), 200
     try:
-        
-        todos_los_datos = menu_mostrar()
-        
+        tomas = Toma()
+        todos_los_datos = tomas.show()
+
         resultados = []
-        
+        print(f"""Estos son oos datos recibidos {todos_los_datos}""")
         for registro in todos_los_datos:
             campos_relevantes = [
-                registro['nombre_completo'].lower(),
-                registro['id'].lower(),
-                registro.get('manzana', '').lower()
+                registro['ubicacion'].lower(),
+                registro.get('usan_personas', '').lower()
             ]
             
-            
+            print("""bande2""")
             
             if any(search_term in campo for campo in campos_relevantes):
-                es_activo = registro.get('activo', '').lower() == 'activo'
-                
+                #es_activo = registro.get('activo', '').lower() == 'activo'
+                print("""bande3""")
                 resultados.append({
-                    'id': registro['id'],
-                    'text': f"{registro['nombre_completo']} ({registro['id']})" + 
-                        (" ⚠ Inactivo" if not es_activo else ""),
+                    'id': registro['id_tomas'],
+                    'text': f"{registro['ubicacion']} ({registro['id_tomas']})",
                     'data': registro,
-                    'selectable': es_activo,
-                    'reason': '' if es_activo else 'Usuario inactivo'
+                    'selectable': True
                 })
+                print("""bande4""")
         return jsonify({
             'status': 'success',
             'count': len(resultados),
             'results': resultados
         })
     except Exception as e:
+        print(e)
         return jsonify({
             'status': 'error',
             'message': f"Error en búsqueda: {str(e)}"

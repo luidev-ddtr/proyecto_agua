@@ -1,7 +1,7 @@
 #Logica para todos los metodos de mostrar datos al usuario
 from crud.personas.persona import MostrarDatos as mostrar_persona
 class MostrarDatos:
-    def mostrar_registro(self, conexion_db):
+    def mostrar_registro(self, conexion_db):# -> None | dict[str, Any | set]:
         """
         Muestra un registro completo del pago de agua con formato legible.
         

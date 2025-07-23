@@ -2,89 +2,34 @@
   <h2 class="text-2xl font-bold mb-6 text-white text-center">Toma de Agua</h2>
 
   <form
-    x-data="{
-      form: {
-        ubicacion: '',
-        personas: '',
-        manzana: '',
-        descripcion: ''
-      },
-      errors: {},
-      isSubmitting: false,
-
-      validarCampos() {
-        this.errors = {};
-
-        if (!this.form.ubicacion.trim()) {
-          this.errors.ubicacion = 'Ingrese una ubicación válida';
-        }
-
-        if (!this.form.personas.trim()) {
-          this.errors.personas = 'Ingrese el nombre o número de personas';
-        }
-
-        if (!this.form.manzana) {
-          this.errors.manzana = 'Seleccione una manzana';
-        }
-
-        return Object.keys(this.errors).length === 0;
-      },
-
-      async submitForm() {
-        if (!this.validarCampos()) {
-          return;
-        }
-
-        this.isSubmitting = true;
-
-        const formData = {
-          ubicacion: this.form.ubicacion,
-          personas: this.form.personas,
-          manzana: this.form.manzana,
-          descripcion: this.form.descripcion
-        };
-
-        console.log('Datos enviados:', formData);
-
-        // Aquí iría tu llamada fetch() o Axios
-        setTimeout(() => {
-          alert('Formulario enviado con éxito');
-          this.isSubmitting = false;
-        }, 1000);
-      }
-    }"
-    @submit.prevent="submitForm"
+    id="tomaAguaForm"
     class="space-y-4"
   >
-
     <!-- Campo Ubicación -->
     <div>
-      <label for="ubicacion" class="block text-sm font-medium text-white">Ubicación (Calle y Manzana)*</label>
+      <label for="ubicacion" class="block text-sm font-medium text-white">Ubicación (Calle)*</label>
       <input
         type="text"
         id="ubicacion"
-        x-model="form.ubicacion"
+        name="ubicacion"
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800"
-        placeholder="Ej: Calle 5, Manzana Centro"
+        placeholder="Ej: Calle 5"
       >
-      <template x-if="errors.ubicacion">
-        <p class="mt-1 text-yellow-200 text-sm" x-text="errors.ubicacion"></p>
-      </template>
+      <p id="error-ubicacion" class="mt-1 text-yellow-200 text-sm hidden"></p>
     </div>
 
     <!-- Campo Personas -->
     <div>
       <label for="personas" class="block text-sm font-medium text-white">Personas que la usan*</label>
       <input
-        type="text"
+        type="number"
         id="personas"
-        x-model="form.personas"
+        name="personas"
+        min="1"
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800"
-        placeholder="Ej: Juan Pérez, Ana Ruiz o 4 personas"
+        placeholder="Ej: 4"
       >
-      <template x-if="errors.personas">
-        <p class="mt-1 text-yellow-200 text-sm" x-text="errors.personas"></p>
-      </template>
+      <p id="error-personas" class="mt-1 text-yellow-200 text-sm hidden"></p>
     </div>
 
     <!-- Campo Manzana -->
@@ -92,7 +37,7 @@
       <label for="manzana" class="block text-sm font-medium text-white">Manzana*</label>
       <select
         id="manzana"
-        x-model="form.manzana"
+        name="manzana"
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800 appearance-none pr-10"
       >
         <option value="" disabled selected class="text-gray-400">Seleccione una manzana</option>
@@ -108,9 +53,7 @@
           <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
         </svg>
       </div>
-      <template x-if="errors.manzana">
-        <p class="mt-1 text-yellow-200 text-sm" x-text="errors.manzana"></p>
-      </template>
+      <p id="error-manzana" class="mt-1 text-yellow-200 text-sm hidden"></p>
     </div>
 
     <!-- Campo Descripción -->
@@ -118,7 +61,7 @@
       <label for="descripcion" class="block text-sm font-medium text-white">Descripción</label>
       <textarea
         id="descripcion"
-        x-model="form.descripcion"
+        name="descripcion"
         rows="3"
         placeholder="Escriba detalles adicionales si lo desea"
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-800 resize-none"
@@ -129,12 +72,120 @@
     <div>
       <button
         type="submit"
+        id="submitBtn"
         class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#1a4b8c] hover:bg-[#163d6f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
-        :disabled="isSubmitting"
-        x-text="isSubmitting ? 'Enviando...' : 'Enviar'"
-      ></button>
+      >Enviar</button>
     </div>
-
   </form>
 </div>
 
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('tomaAguaForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // API endpoint - asegúrate de que API_ENDPOINT esté definido globalmente
+    const API_ENDPOINT ="http://localhost:5000/api";
+    const apiUrl = `${API_ENDPOINT}/create_toma`;
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validar campos
+        if (!validateForm()) {
+            return;
+        }
+        
+        // Deshabilitar botón y cambiar texto
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+        
+        try {
+            // Obtener datos del formulario
+            const formData = getFormData();
+            
+            // Enviar datos al backend
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Respuesta del servidor:', data);
+            
+            // Mostrar mensaje de éxito y resetear formulario
+            alert('Toma de agua registrada con éxito');
+            form.reset();
+            
+        } catch (error) {
+            console.error('Error al enviar el formulario:', error);
+            alert('Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.');
+        } finally {
+            // Restaurar botón
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar';
+        }
+    });
+    
+    function validateForm() {
+        let isValid = true;
+        
+        // Validar ubicación
+        const ubicacion = document.getElementById('ubicacion').value.trim();
+        const errorUbicacion = document.getElementById('error-ubicacion');
+        if (!ubicacion) {
+            errorUbicacion.textContent = 'Ingrese una ubicación válida';
+            errorUbicacion.classList.remove('hidden');
+            isValid = false;
+        } else {
+            errorUbicacion.classList.add('hidden');
+        }
+        
+        // Validar personas
+        const personas = document.getElementById('personas').value.trim();
+        const errorPersonas = document.getElementById('error-personas');
+        if (!personas || isNaN(personas) || parseInt(personas) <= 0) {
+            errorPersonas.textContent = 'Ingrese un número válido de personas (mayor que 0)';
+            errorPersonas.classList.remove('hidden');
+            isValid = false;
+        } else {
+            errorPersonas.classList.add('hidden');
+        }
+        
+        // Validar manzana
+        const manzana = document.getElementById('manzana').value;
+        const errorManzana = document.getElementById('error-manzana');
+        if (!manzana) {
+            errorManzana.textContent = 'Seleccione una manzana';
+            errorManzana.classList.remove('hidden');
+            isValid = false;
+        } else {
+            errorManzana.classList.add('hidden');
+        }
+        
+        return isValid;
+    }
+    
+    function getFormData() {
+        const ubicacion = document.getElementById('ubicacion').value.trim();
+        const personas = parseInt(document.getElementById('personas').value.trim());
+        const manzana = document.getElementById('manzana').value;
+        const descripcion = document.getElementById('descripcion').value.trim();
+        
+        // Combinar ubicación, manzana y descripción en un solo campo como especificado
+        const ubicacionCompleta = `${ubicacion}, Manzana ${manzana}${descripcion ? ` (${descripcion})` : ''}`;
+        
+        return {
+            ubicacion: ubicacionCompleta,
+            usan_personas: personas
+        };
+    }
+});
+</script>
