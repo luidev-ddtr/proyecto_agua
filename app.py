@@ -43,6 +43,7 @@ import os
 from routes.authentication import auth_bp
 from routes.api_persona import api_persona_bp
 from routes.api_pagos import api_pago_bp
+from routes.api_tomas import api_toma_bp
 
 # Carga el .env con ruta ABSOLUTA (crítico en PythonAnywhere)
 load_dotenv('.env')
@@ -51,7 +52,7 @@ app = Flask(__name__)
 app.register_blueprint(auth_bp)  # Ahora las rutas estarán bajo /auth
 app.register_blueprint(api_pago_bp) #rutas para el crud y la 
 app.register_blueprint(api_persona_bp)
-
+app.register_blueprint(api_toma_bp)
 #panel_de_control(True)
 
 CORS(app, resources={
