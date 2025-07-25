@@ -120,6 +120,7 @@ def actualizar_registro_pago():
             return jsonify({'Perfecto':"datos actualizados correctamente"}), 200
         
     except Exception as e:
+                print(e)
                 return jsonify({
             'status': 'error',
             'message': str(e)

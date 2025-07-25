@@ -8,7 +8,7 @@ class Conexion:
     Clase para manejar conexiones a SQL Server.
     Centraliza todas las operaciones de base de datos.
     """
-    server = "ANGEL\\SQLEXPRESS"
+    server = "FERLOXG\\SQLEXPRESS"
     database = "GESTION_AGUA1"
 
     def __init__(self):

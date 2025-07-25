@@ -88,7 +88,7 @@ ERRORES estado_especial DEBE SER UN NUMERO AL IGUAL QUE estudia
 'manzana': 'Centro', 'estudia': 'No', 'fecha_nacimiento': '2002-02-19'}
 """
 
-panel = PanelControl(Conexion())
+panel = PanelControl(Conexion)
 @api_persona_bp.route('/dashboard')
 def panel_de_control(debugg):
     if debugg:

@@ -14,18 +14,21 @@ class Modificate_register:
         """
         try:
             conexion, cursor = conexion_db.conexion()
-            
+            print("banderapagoact1")
             
             # Consulta SQL con campos editables
             consulta_sql = """
-                UPDATE pagos_agua 
-                SET fecha_pago = ?, 
-                    estado_pago = ?,
-                    cantidad = ?,
-                    tarifa_pendiente = ?
-                WHERE id = ?
+                UPDATE PAGO_AGUA 
+                SET FECHA = ?, 
+                    ESTADO_PAGO = ?,
+                    CANTIDAD = ?,
+                    TARIFA_PENDIENTE = ?
+                WHERE ID_PAGO = ?
             """
+            print("banderapagoact2")
+
             # Valores para la consulta
+            print("banderapagoact3")
             valores = (
                 objeto.fecha_pago,
                 objeto.estado_pago,
@@ -33,6 +36,8 @@ class Modificate_register:
                 objeto.tarifa_pendiente,
                 objeto.id_registro
             )
+
+            print("banderapagoact4")
             # Ejecutar la consulta
             cursor.execute(consulta_sql, valores)
             

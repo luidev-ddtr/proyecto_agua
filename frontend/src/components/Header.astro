@@ -3,16 +3,10 @@ import CerrarSesionBoton from "./CerrarSesionBoton.astro";
 // Importa las variables de entorno (opcional, pero útil para autocompletado)
 const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 
+
 ---
 <header class="bg-black text-white flex items-center h-[60px]">
-  <!-- Logo (opcionalmente 1/2 o menos para balancear con el nav) -->
-  <div class="w-1/3 flex justify-center">
-    <img 
-      src=`${BASE_URL}/logo.svg` 
-      alt="Logo" 
-      class="h-[58px] w-auto" 
-    />
-  </div>
+<div class="w-1/3 flex ml-20"> <img src=`${BASE_URL}/public/logoo.png` alt="Logo" class="h-[48px] w-auto"> </div>
 
   <nav class="w-2/3 flex justify-end space-x-6 pr-6">
     <a href={`${BASE_URL}/`} class="px-4 py-2 rounded-lg bg-transparent hover:bg-white hover:text-black transition-colors duration-300">Inicio</a>

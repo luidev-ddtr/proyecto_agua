@@ -1,7 +1,7 @@
 #Logica para todos los metodos de mostrar datos al usuario
 from crud.personas.persona import MostrarDatos as mostrar_persona
 class MostrarDatos:
-    def mostrar_registro(self, conexion_db):# -> None | dict[str, Any | set]:
+    def mostrar_registro(self,indice  ,conexion_db):# -> None | dict[str, Any | set]:
         """
         Muestra un registro completo del pago de agua con formato legible.
         
@@ -21,7 +21,7 @@ class MostrarDatos:
         SELECT 
             ID_PAGO, ID_PERSONA, ID_TOMA, ESTADO_PAGO, CANTIDAD, ANIO, FECHA, TARIFA_PENDIENTE
         FROM PAGO_AGUA
-        WHERE id = ?
+        WHERE ID_PAGO = ?
         """
         cursor.execute(query, (indice,))
         registro = cursor.fetchone()
@@ -67,8 +67,8 @@ class MostrarDatos:
         print("BANDERAMOSTAR5")
         resultados = []
         nombre_persona = mostrar_persona()
+        
         for registro in registros:
-            print(registro)
             "Se obtiene el nombre completo de la persona"
             datos  = nombre_persona.mostrar_registro_persona(registro[1],conexion_db)
             print("BANDERAMOSTAR6")
@@ -81,13 +81,14 @@ class MostrarDatos:
                 'nombre_completo': datos['nombre_completo'],
                 'activo': datos['activo'],
                 'tomas_agua': registro[2],
-                'año': registro[3],
-                'fecha_pago': registro[4],
-                'estado_pago': registro[5] ,#Logica para que muestre pendiente, pagado, parcial
-                'cantidad': registro[6],
-                'tarifa_pendiente': registro[7]
+                'año': registro[5],
+                'fecha_pago': registro[6],
+                'estado_pago': registro[3] ,#Logica para que muestre pendiente, pagado, parcial
+                'cantidad': float(registro[4]),
+                'tarifa_pendiente': float(registro[7])
                 
             }
+            print(datos_registro)
             resultados.append(datos_registro)
             print("BANDERAMOSTAR7")
         
@@ -108,7 +109,7 @@ class MostrarDatos:
                 - tarifa_pendiente
         """
         print("\nDatos del registro (formato crudo):")
-        print(f"id_registrp: {registro.id}")
+        print(f"id_registrp: {registro.id_registro}")
         print(f"id_persona: {registro.id_persona}")
         print(f"tomas_agua: {registro.tomas_agua}")
         print(f"año: {registro.año}")
@@ -121,10 +122,7 @@ class MostrarDatos:
         """Metodo de testeo para verificar valores"""
         conexion, cursor = conn.conexion()
         query = """
-        SELECT 
-            id, nombre, apellidos, estado_especial,
-            manzana, estudia, activo, fecha_nacimiento
-        FROM persona
+        SELECT * FROM PERSONA
         WHERE id = ?
         """
         

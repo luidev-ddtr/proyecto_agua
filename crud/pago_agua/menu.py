@@ -61,7 +61,7 @@ def modificar(datos):
     resultado = md_registro.modificar_dato(registro,conexion_db) 
     
     print("mostrarando datos reados")
-    visuali.mostrar_registro(datos["id_registro"],conexion_db)
+    visuali.mostrar_registro(registro.id_registro,conexion_db)
     
     conexion_db.cerrar_conexion()
     if resultado:
